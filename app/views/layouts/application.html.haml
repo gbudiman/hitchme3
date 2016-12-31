@@ -14,7 +14,15 @@
 
         %ul{class: 'nav navbar-nav navbar-right'}
           %li
-            %a{href: '#', id: 'profile-login', hidden: true} Sign In
-          %li
-            %a{href: '#', id: 'profile-button', hidden: true}
+            %a{href: '/auth/facebook', id: 'fb-login'} Sign In
+          / %li
+          /   %a{href: '#', id: 'profile-login', hidden: true} Sign In
+          / %li{id: 'profile-button-container', hidden: true}
+          /   %a{href: '#', id: 'profile-button', class: 'dropdown-toggle', 'data-toggle' => 'dropdown'}
+          /     %span{id: 'profile-name'}
+          /     %span{class: 'caret'}
+          /   %ul{class: 'dropdown-menu'}
+          /     %li{class: 'divider'}
+          /     %li
+          /       %a{href: '#', id: 'profile-logout'} Sign Out
     = yield

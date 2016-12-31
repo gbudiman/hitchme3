@@ -1,6 +1,6 @@
 class SessionController < ApplicationController
   def create
-    ap 'here'
-    ap env
+    User.login data: request.env['omniauth.auth']
+    redirect_to '/'
   end
 end
