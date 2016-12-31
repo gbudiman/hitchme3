@@ -13,4 +13,8 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require moment-with-locales.min
+//= require fb_async_init
+//= require fb_login
+//= require profile_button
 //= require_tree .
