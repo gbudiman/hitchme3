@@ -30,7 +30,7 @@ var profile = (function() {
             transition('init');
           })
 
-        update_profile_name();
+        update_profile_name(function() { planner.transition('init'); });
         break;
     }
     
@@ -69,6 +69,7 @@ var profile = (function() {
   var check_existing_session = function() {
     update_profile_name(function() {
       transition('logged_in');
+      planner.transition('init');
     })
   }
 

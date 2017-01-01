@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require gmaps_lib
 //= require turbolinks
 //= require moment-with-locales.min
 //= require_tree .
