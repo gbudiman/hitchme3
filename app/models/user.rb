@@ -32,12 +32,18 @@ class User < ApplicationRecord
         user.save
       end
     else
-      User.create! id:          id,
-                   token:       token,
-                   expiration:  expiration,
-                   name:        name,
-                   link:        id,
-                   email:       email
+      user = User.create! id:          id,
+                          token:       token,
+                          expiration:  expiration,
+                          name:        name,
+                          link:        id,
+                          email:       email
     end
+
+    return user
+  end
+
+  def self.find_by_session_id id
+    return User.find(id)
   end
 end
