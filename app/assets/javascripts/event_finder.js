@@ -5,7 +5,7 @@ var event_finder = (function() {
     $('#setup-ride-tab').on('shown.bs.tab', function() { transition('setup_ride_clicked') });
     $('#find-ride-tab').on('shown.bs.tab', function() { transition('find_ride_clicked') });
     $('#find-event-search').selectize({
-      valueField: 'id',
+      valueField: 'address',
       labelField: 'name',
       searchField: 'name',
       create: false,
@@ -31,7 +31,6 @@ var event_finder = (function() {
                +   '</span>'
                +   ')'
                + '</div>';
-          return '<div>' + item.name + '</div>';
         }
       },
       load: function(query, callback) {
@@ -47,6 +46,10 @@ var event_finder = (function() {
             callback(res.results);
           } 
         })
+      },
+      onChange: function(item) {
+        gmaps.clear_all_markers();
+        gmaps.place_marker(item, 'event-found', 'blue');
       }
     })
   }
@@ -56,12 +59,12 @@ var event_finder = (function() {
     switch(_state) {
       case 'setup_ride_clicked':
         $('#find-ride-switch')
-          .parent()
+          .parent().hide()
             .parent().css('padding', '10px 15px');
         break;
       case 'find_ride_clicked':
         $('#find-ride-switch')
-          .parent()
+          .parent().show()
             .parent().css('padding', '0px 15px');
         break;
     }

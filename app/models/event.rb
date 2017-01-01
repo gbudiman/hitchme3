@@ -10,7 +10,7 @@ class Event < ApplicationRecord
 
   def self.search query:
     results = Array.new
-    Event.where('name LIKE :query', query: "#{query}%")
+    Event.where('name ILIKE :query', query: "#{query}%")
          .where('time_start > :today', today: Time.now)
          .includes(:user)
          .limit(32).each do |e|

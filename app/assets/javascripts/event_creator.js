@@ -55,6 +55,12 @@ var event_creator = (function() {
         $('#create-event-create').text('Create!');
         $('#create-event-successful').hide();
         break;
+      case 'init_gmaps':
+        var autocomplete = new google.maps.places.Autocomplete(document.getElementById('create-event-address'));
+        autocomplete.addListener('place_changed', function() {
+          gmaps.place_marker($('#create-event-address').val().trim(), 'event-created', 'blue');
+          gmaps.clear_all_markers();
+        })
       case 'reset':
         reset_all_fields();
         run_validations(false);

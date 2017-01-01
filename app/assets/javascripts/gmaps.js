@@ -1,5 +1,6 @@
 var gmaps = (function() {
   var _map;
+  var _markers;
   var _canvas = '#map-canvas'
   var _interactions = '#map-interactions'
 
@@ -15,6 +16,8 @@ var gmaps = (function() {
   }
 
   var initialize = function() {
+    _markers = new Object();
+
     GMaps.geocode({
       address: 'Los Angeles, CA',
       callback: function(results, status) {
@@ -31,6 +34,100 @@ var gmaps = (function() {
           })
 
           reposition();
+          initialize_external_interations();
+        }
+      }
+    })
+  }
+
+  var clear_all_markers = function() {
+    $.each(_markers, function(i, x) {
+      x.setMap(null);
+    })
+
+    _markers = new Object();
+  }
+
+  var clear_marker = function(x) {
+    if (_markers[x] != undefined) {
+      _markers[x].setMap(null);
+    }
+  }
+
+  var initialize_external_interations = function() {
+    event_setup_ride.transition('init');
+    event_creator.transition('init_gmaps');
+  }
+
+  var set_bounds = function() {
+    var bounds = new google.maps.LatLngBounds();
+    $.each(_markers, function(i, x) {
+      bounds.extend(x.position);
+    })
+
+    console.log(_markers);
+    _map.fitBounds(bounds);
+  }
+
+  var route = function(a, b) {
+    return new Promise(
+      function(resolve, reject) {
+        geocode(a).then(function(ll_a) {
+          geocode(b).then(function(ll_b) {
+            _map.travelRoute({
+              origin: [ll_a.lat(), ll_a.lng()],
+              destination: [ll_b.lat(), ll_b.lng()],
+              travelMode: 'driving',
+              step: function(e) {
+                _map.drawPolyline({
+                  path: e.path,
+                  strokeColor: 'red',
+                  strokeOpacity: 0.6,
+                  strokeWeight: 6
+                })
+              }
+            })
+          })
+        })
+      }
+    )
+  }
+
+  var geocode = function(address) {
+    return new Promise(
+      function(resolve, reject) {
+        GMaps.geocode({
+          address: address,
+          callback: function(results, status) {
+            if (status == 'OK') {
+              resolve(results[0].geometry.location);
+            }
+          }
+        })
+      }
+    )
+  }
+
+  var place_marker = function(x, id, _hue, done) {
+    var hue = _hue == undefined ? 'red' : _hue;
+
+    GMaps.geocode({
+      address: x,
+      callback: function(results, status) {
+        if (status == 'OK') {
+          var latlng = results[0].geometry.location;
+
+          _map.setCenter(latlng.lat(), latlng.lng());
+          var marker = _map.addMarker({
+            // lat: latlng.lat(),
+            // lng: latlng.lng(),
+            position: latlng,
+            icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
+          })
+
+          _markers[id] = marker;
+          console.log(_markers);
+          if (done != undefined) { done(); }
         }
       }
     })
@@ -44,9 +141,14 @@ var gmaps = (function() {
   return {
     initialize: initialize,
     destroy: destroy,
+    clear_all_markers: clear_all_markers,
+    clear_marker: clear_marker,
     map: map,
     reposition: reposition,
-    get_canvas_height: get_canvas_height
+    get_canvas_height: get_canvas_height,
+    place_marker: place_marker,
+    route: route,
+    set_bounds: set_bounds
   }
 })()
 
