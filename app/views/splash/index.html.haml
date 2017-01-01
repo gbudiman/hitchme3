@@ -11,6 +11,14 @@
           %div{class: 'panel-body'}
             %select{class: 'form-control', placeholder: 'Type to Search Event...', id: 'find-event-search'}
 
+            %div{class: 'alert alert-warning alert-dismissible'}
+              %button{type: 'button', class: 'close', 'data-dismiss' => 'alert'}
+                %span &times;
+              For privacy consideration, please use approximate address rather than exact one. You should only discuss exact address in personal communiqué with corresponding parties.
+              %hr
+              %strong Example:
+              Use approximate address 'Los Angeles, CA' instead of '123 W 3rd St, Los Angeles, CA'
+
             %ul{class: 'nav nav-tabs', role: 'tablist'}
               %li{role: 'presentation', class: 'active'}
                 %a{href: '#find-ride', 'data-toggle' => 'tab', id: 'find-ride-tab'} 
@@ -59,7 +67,7 @@
               %label{for: 'create-event-name'} Event Name
               %input{id: 'create-event-name', type: 'text', class: 'form-control', placeholder: 'Ex: Dystopia Rising SoCal'}
             %div{class: 'form-group'}
-              %label{for: 'create-event-name'} Address
+              %label{for: 'create-event-name'} Address (must be exact)
               %input{id: 'create-event-address', type: 'text', class: 'form-control', placeholder: 'Ex: Corona, CA'}
             %div{class: 'form-group'}
               %label{for: 'create-event-name'} Start Time
