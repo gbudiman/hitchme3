@@ -1,6 +1,23 @@
 body {
   font-family: 'Titillium Web', sans-serif;
 }
+
 .navbar {
   border-radius: 0;
+}
+
+input.form-control, .toggle {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+#find-ride-tab {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.trip-separator {
+  margin-top: 0.5em;
+  font-size: 110%;
+  font-weight: bold;
 }

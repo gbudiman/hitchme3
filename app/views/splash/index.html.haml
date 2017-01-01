@@ -1,6 +1,75 @@
 %div{class: 'row container-fluid'}
   %div{class: 'col-xs-12 col-md-8', id: 'map-canvas'}
   %div{class: 'col-xs-12 col-md-4', id: 'map-interactions'}
+    %div{class: 'col-xs-12 panel-group row', id: 'find-event', role: 'tablist'}
+      %div{class: 'panel panel-primary'}
+        %div{class: 'panel-heading', role: 'tab', id: 'find-event-heading'}
+          %h4{class: 'panel-title'}
+            %a{role: 'button', 'data-toggle' => 'collapse', 'data-parent' => '#find-event', href: '#find-event-body'} 
+              %div Find Event
+        %div{id: 'find-event-body', class: 'panel-collapse collapse in', role: 'tabpanel'}
+          %div{class: 'panel-body'}
+            %input{type: 'text', class: 'form-control', placeholder: 'Type to Search Event...', id: 'find-event-search'}
+
+            %ul{class: 'nav nav-tabs', role: 'tablist'}
+              %li{role: 'presentation', class: 'active'}
+                %a{href: '#find-ride', 'data-toggle' => 'tab', id: 'find-ride-tab'} 
+                  Find Ride
+                  %input{'data-toggle' => 'toggle', 'data-on' => 'Home', 'data-off' => 'To', 'data-onstyle' => 'primary', 'data-offstyle' => 'primary', type: 'checkbox', class: 'form-control', id: 'find-ride-switch'}
+              %li{role: 'presentation'}
+                %a{href: '#offer-ride', 'data-toggle' => 'tab'} Setup Ride
+
+            %div{class: 'tab-content'}
+              %div{role: 'tabpanel', class: 'tab-pane fade in active', id: 'find-ride'}
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup address', id: 'find-ride-address'}
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup time', id: 'find-ride-address'}
+
+                %button{type: 'button', class: 'btn btn-primary btn-block', id: 'find-ride-search'} Search
+
+              %div{role: 'tabpanel', class: 'tab-pane fade', id: 'offer-ride'}
+                %div{class: 'trip-separator'}
+                  
+                  %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-departure'}
+                  Departure
+
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter starting address', id: 'offer-ride-depart-address'}
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter departure time', id: 'offer-ride-depart-time'}
+
+                %div{class: 'trip-separator'} 
+                  %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-return'}
+                  Return trip
+
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter return address', id: 'offer-ride-return-address'}
+                %input{type: 'text', class: 'form-control', placeholder: 'Enter return time', id: 'offer-ride-return-time'}
+
+                %div{class: 'pull-right'}
+                  %button{type: 'button', class: 'btn btn-primary', id: 'offer-trip-create'} Setup Trip
+
+
+
+    %div{class: 'col-xs-12 panel-group row', id: 'create-event', role: 'tablist'}
+      %div{class: 'panel panel-primary'}
+        %div{class: 'panel-heading', role: 'tab', id: 'create-event-heading'}
+          %h4{class: 'panel-title'}
+            %a{role: 'button', 'data-toggle' => 'collapse', 'data-parent' => '#create-event', href: '#create-event-body'} 
+              %div Create Event
+        %div{id: 'create-event-body', class: 'panel-collapse collapse in', role: 'tabpanel'}
+          %div{class: 'panel-body'}
+            %div{class: 'form-group'}
+              %label{for: 'create-event-name'} Event Name
+              %input{id: 'create-event-name', type: 'text', class: 'form-control', placeholder: 'Ex: Dystopia Rising Jan 2017'}
+            %div{class: 'form-group'}
+              %label{for: 'create-event-name'} Address
+              %input{id: 'create-event-name', type: 'text', class: 'form-control', placeholder: 'Ex: Corona, CA'}
+            %div{class: 'form-group'}
+              %label{for: 'create-event-name'} Start Time
+              %input{id: 'create-event-name', type: 'text', class: 'form-control'}
+            %div{class: 'form-group'}
+              %label{for: 'create-event-name'} End Time (Optional)
+              %input{id: 'create-event-name', type: 'text', class: 'form-control'}
+
+            %div{class: 'pull-right'}
+              %button{type: 'button', class: 'btn btn-primary', id: 'create-event-create'} Create Event!
 
   %div{class: 'col-xs-12', id: 'intro'}
     %h1 Big-Ass Intro Here
