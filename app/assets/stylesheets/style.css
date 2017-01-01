@@ -39,3 +39,15 @@ input.form-control, .toggle {
 .bottom-padded {
   padding-bottom: 10px;
 }
+
+.event-search-title {
+  font-weight: bold;
+}
+
+.event-search-downlight {
+  opacity: 0.8
+}
+
+.event-search-entry {
+  border-bottom: 1px solid #ccc;
+}

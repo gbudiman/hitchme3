@@ -6,5 +6,6 @@ Rails.application.routes.draw do
   get      '/session/destroy',                 to: 'session#destroy'
   get      'auth/facebook/callback',           to: 'session#create'
 
+  get      '/event/search/',                   to: 'event#search'
   post     '/event/create',                    to: 'event#create'
 end

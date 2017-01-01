@@ -13,4 +13,11 @@ class EventController < ApplicationController
       id: event.id
     }
   end
+
+  def search
+    render json: {
+      status: 'OK',
+      results: Event.search(query: params[:q])
+    }
+  end
 end

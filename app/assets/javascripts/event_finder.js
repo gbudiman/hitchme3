@@ -4,6 +4,51 @@ var event_finder = (function() {
   var attach = function() {
     $('#setup-ride-tab').on('shown.bs.tab', function() { transition('setup_ride_clicked') });
     $('#find-ride-tab').on('shown.bs.tab', function() { transition('find_ride_clicked') });
+    $('#find-event-search').selectize({
+      valueField: 'id',
+      labelField: 'name',
+      searchField: 'name',
+      create: false,
+      options: [],
+      render: {
+        option: function(item, escape) {
+          return '<div class="event-search-entry">'
+               +   '<div class="event-search-title">' + escape(item.name) + '</div>'
+               +   '<div>' + escape(item.address) + '</div>'
+               +   '<div>' + escape(moment.unix(item.time_start).format('M/D/Y h:mm A ZZ')) + '</div>'
+               +   (item.time_end > 0 ?
+                     '<div>' + escape(moment.unix(item.time_end).format('M/D/Y h:mm A ZZ')) + '</div>' :
+                     '')
+               +   '<div>' + escape(item.organizer) + '</div>'
+               + '</div>'
+        },
+        item: function(item, escape) {
+          return '<div>' 
+               +   item.name 
+               +   ' (' 
+               +   '<span class="event-search-downlight">'
+               +     moment.unix(item.time_start).format('M/D') 
+               +   '</span>'
+               +   ')'
+               + '</div>';
+          return '<div>' + item.name + '</div>';
+        }
+      },
+      load: function(query, callback) {
+        if (!query.length) return callback();
+        $.ajax({
+          url: '/event/search',
+          type: 'GET',
+          data: {
+            q: encodeURIComponent(query)
+          }
+        }).done(function(res) {
+          if (res.status == 'OK') {
+            callback(res.results);
+          } 
+        })
+      }
+    })
   }
 
   var initialize = function() {
