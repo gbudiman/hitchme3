@@ -1,6 +1,7 @@
 var gmaps = (function() {
   var _map;
   var _canvas = '#map-canvas'
+  var _interactions = '#map-interactions'
 
   var map = function() { return _map; }
   var reposition = function() {
@@ -32,10 +33,14 @@ var gmaps = (function() {
     })
   }
 
-  
+  var destroy = function() {
+    $(_canvas).empty();
+    $(_interactions).empty();
+  }  
 
   return {
     initialize: initialize,
+    destroy: destroy,
     map: map,
     reposition: reposition
   }

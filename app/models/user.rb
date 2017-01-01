@@ -44,6 +44,6 @@ class User < ApplicationRecord
   end
 
   def self.find_by_session_id id
-    return User.find(id)
+    return User.find_by(id: id)
   end
 end

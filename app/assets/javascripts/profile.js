@@ -2,7 +2,7 @@ var profile = (function() {
   var _state = 'init';
 
   var initialize = function() {
-    //console.log('initializing state ' + _state);
+    console.log('initializing state ' + _state);
     hide_profile_button();
 
     switch (_state) {
@@ -21,17 +21,28 @@ var profile = (function() {
           .off('click');
         break;
       case 'logged_in':
+        $('#profile-name').text('Fetching data...')
+        update_profile_name(function() { 
+          planner.transition('init'); 
+          transition('logged_in_post');
+        });
+        break;
+      case 'logged_in_post':
         show_profile_button();
         $('#fb-login').hide();
         $('#profile-button').show();
-        $('#profile-name').text('Fetching name...')
         $('#profile-logout')
           .off('click').on('click', function() {
-            transition('init');
+            transition('logging_out');
+            window.open('/session/destroy', 'logout_aux',
+                        'scrollbars=0, resizable=0, height=256, width=384');
           })
-
-        update_profile_name(function() { planner.transition('init'); });
         break;
+      case 'logging_out':
+        $('#fb-login')
+          .show().text('Logging Out...')
+          .off('click');
+        hide_profile_button();
     }
     
   }
@@ -41,16 +52,30 @@ var profile = (function() {
     initialize();
   }
 
+  var display_intro = function(val) {
+    if (val) {
+      $('#intro').show();
+    } else {
+      $('#intro').hide();
+    }
+  }
+
   var update_profile_name = function(done) {
     $.get({
       url: '/session/username',
       method: 'GET'
     }).done(function(res) {
+      console.log(res);
       if (res.valid) {
         $('#profile-name').text(res.name);
-      }
+        console.log('hiding');
+        display_intro(false);
 
-      if (done != undefined) { done(); }
+        if (done != undefined) { done(); }
+      } else {
+        console.log('showing');
+        display_intro(true);
+      }      
     })
   }
 
@@ -68,7 +93,7 @@ var profile = (function() {
 
   var check_existing_session = function() {
     update_profile_name(function() {
-      transition('logged_in');
+      transition('logged_in_post');
       planner.transition('init');
     })
   }

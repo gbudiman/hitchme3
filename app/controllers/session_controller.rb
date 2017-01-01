@@ -15,6 +15,7 @@ class SessionController < ApplicationController
   end
 
   def destroy
+    render layout: false
     reset_session
   end
 end

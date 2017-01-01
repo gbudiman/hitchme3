@@ -4,7 +4,13 @@ var login_aux = (function() {
     window.close();
   } 
 
+  var logout = function() {
+    window.opener.profile.transition('init');
+    window.close();
+  }
+
   return {
-    success: success
+    success: success,
+    logout: logout
   }
 })();
