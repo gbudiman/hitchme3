@@ -1,5 +1,6 @@
 body {
   font-family: 'Titillium Web', sans-serif;
+  overflow-x: hidden
 }
 
 .navbar {
@@ -20,4 +21,17 @@ input.form-control, .toggle {
   margin-top: 0.5em;
   font-size: 110%;
   font-weight: bold;
+}
+
+#main-content {
+  padding-right: 0;
+  margin-right: -15px;
+}
+
+#map-interactions, #find-event, #create-event {
+  padding-right: 0;
+}
+
+#map-interactions {
+  overflow-y: auto;
 }
