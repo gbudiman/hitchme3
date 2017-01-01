@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   get      '/session/username',                to: 'session#fetch_username'
   get      '/session/destroy',                 to: 'session#destroy'
   get      'auth/facebook/callback',           to: 'session#create'
+
+  post     '/event/create',                    to: 'event#create'
 end

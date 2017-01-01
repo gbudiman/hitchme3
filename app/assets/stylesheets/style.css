@@ -35,3 +35,7 @@ input.form-control, .toggle {
 #map-interactions {
   overflow-y: auto;
 }
+
+.bottom-padded {
+  padding-bottom: 10px;
+}
