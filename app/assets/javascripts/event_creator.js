@@ -6,7 +6,14 @@ var event_creator = (function() {
     $('#create-event-create').on('click', function() { transition('validating'); })
     $('#create-event-name').on('keyup', run_validations);
     $('#create-event-address').on('keyup', run_validations);
-    $('#create-event-start-time').on('keyup', run_validations);
+    $('#create-event-start-time')
+      .on('keyup', run_validations)
+      .on('dp.change', run_validations);
+    $('#create-event-end-time')
+      .on('keyup', run_validations)
+      .on('dp.change', run_validations);
+    $('#create-event-start-time').datetimepicker();
+    $('#create-event-end-time').datetimepicker();
     return this;
   }
 

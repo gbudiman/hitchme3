@@ -35,6 +35,9 @@ var event_setup_ride = (function() {
                              'green',
                              function() { get_route('to_home'); })
         })
+
+        $('#offer-ride-depart-time').datetimepicker();
+        $('#offer-ride-return-time').datetimepicker();
         break;
     }
   }
