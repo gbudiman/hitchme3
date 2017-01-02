@@ -3,6 +3,7 @@ var gmaps = (function() {
   var _markers;
   var _canvas = '#map-canvas'
   var _interactions = '#map-interactions'
+  var _polylines;
 
   var map = function() { return _map; }
   var get_canvas_height = function() {
@@ -17,6 +18,7 @@ var gmaps = (function() {
 
   var initialize = function() {
     _markers = new Object();
+    _polylines = new Object();
 
     GMaps.geocode({
       address: 'Los Angeles, CA',
@@ -54,6 +56,15 @@ var gmaps = (function() {
     }
   }
 
+  var clear_route = function(name) {
+    // $.each(_polylines[name], function(_junk, line) {
+    // })
+    if (_polylines[name] != undefined) {
+      console.log(_polylines[name]);
+      _polylines[name].setMap(null);  
+    }
+  }
+
   var initialize_external_interations = function() {
     event_setup_ride.transition('init');
     event_creator.transition('init_gmaps');
@@ -65,11 +76,13 @@ var gmaps = (function() {
       bounds.extend(x.position);
     })
 
-    console.log(_markers);
     _map.fitBounds(bounds);
   }
 
-  var route = function(a, b) {
+  var route = function(a, b, name, color) {
+    clear_route(name);
+    var paths = new Array();
+
     return new Promise(
       function(resolve, reject) {
         geocode(a).then(function(ll_a) {
@@ -79,12 +92,16 @@ var gmaps = (function() {
               destination: [ll_b.lat(), ll_b.lng()],
               travelMode: 'driving',
               step: function(e) {
-                _map.drawPolyline({
-                  path: e.path,
-                  strokeColor: 'red',
-                  strokeOpacity: 0.6,
+                paths = paths.concat(e.path);
+              },
+              end: function() {
+                _polylines[name] = new google.maps.Polyline({
+                  path: paths,
+                  strokeColor: color,
+                  strokeOpacity: 0.5,
                   strokeWeight: 6
                 })
+                _polylines[name].setMap(_map.map);
               }
             })
           })
@@ -138,8 +155,13 @@ var gmaps = (function() {
     $(_interactions).empty();
   }  
 
+  var get_polylines = function() {
+    return _polylines;
+  }
+
   return {
     initialize: initialize,
+    clear_route: clear_route,
     destroy: destroy,
     clear_all_markers: clear_all_markers,
     clear_marker: clear_marker,
@@ -148,7 +170,8 @@ var gmaps = (function() {
     get_canvas_height: get_canvas_height,
     place_marker: place_marker,
     route: route,
-    set_bounds: set_bounds
+    set_bounds: set_bounds,
+    get_polylines: get_polylines
   }
 })()
 

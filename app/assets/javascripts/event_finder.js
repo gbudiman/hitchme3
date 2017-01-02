@@ -97,6 +97,7 @@ var event_finder = (function() {
 
   return {
     attach: attach,
+    get_selected: get_selected,
     transition: transition
   }
 })();

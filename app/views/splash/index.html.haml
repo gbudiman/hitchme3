@@ -40,18 +40,28 @@
                   %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-departure'}
                   Departure
 
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter starting address', id: 'offer-ride-depart-address'}
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter departure time', id: 'offer-ride-depart-time'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter starting address', id: 'offer-ride-depart-address'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter departure time', id: 'offer-ride-depart-time'}
 
                 %div{class: 'trip-separator'} 
                   %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-return'}
                   Return trip
 
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter return address', id: 'offer-ride-return-address'}
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter return time', id: 'offer-ride-return-time'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter return address', id: 'offer-ride-return-address'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter return time', id: 'offer-ride-return-time'}
 
+                %div{class: 'alert alert-danger', id: 'offer-ride-non-linear-time'}
+                  Your return trip date is before departure date
+
+                %div{class: 'row bottom-added'}
                 %div{class: 'pull-right'}
                   %button{type: 'button', class: 'btn btn-primary', id: 'offer-trip-create'} Setup Trip
+
+                
 
 
 

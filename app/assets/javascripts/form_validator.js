@@ -15,17 +15,34 @@ var form_validator = (function() {
     }
   }
 
-  var linear_timeline = function(a, b) {
+  var linear_timeline = function(obj_a, obj_b) {
+    var a = obj_a.val().trim();
+    var b = obj_b.val().trim();
+
+    console.log(a + ' ? ' + b);
+
     if (a.length > 0 && b.length > 0) {
-      if (moment(a) < moment(b)) {
-        return 0;
+      console.log('checking linearity');
+      if (moment(a) > moment(b)) {
+        console.log(a + ' <=> ' + b);
+        obj_a.parent().addClass('has-error');
+        obj_b.parent().addClass('has-error');
+        return 1;
+      } else {
+        obj_a.parent().removeClass('has-error');
+        obj_b.parent().removeClass('has-error');
       }
     }
 
-    return 1;
+    return 0;
+  }
+
+  var clear_error = function(o) {
+    o.parent().removeClass('has-error');
   }
 
   return {
+    clear_error: clear_error,
     not_empty: not_empty,
     linear_timeline: linear_timeline
   }
