@@ -5,7 +5,7 @@ var event_finder = (function() {
     $('#setup-ride-tab').on('shown.bs.tab', function() { transition('setup_ride_clicked') });
     $('#find-ride-tab').on('shown.bs.tab', function() { transition('find_ride_clicked') });
     $('#find-event-search').selectize({
-      valueField: 'address',
+      valueField: 'id',
       labelField: 'name',
       searchField: 'name',
       create: false,
@@ -23,7 +23,12 @@ var event_finder = (function() {
                + '</div>'
         },
         item: function(item, escape) {
-          return '<div>' 
+          return '<div id="find-event-search-result" '
+               +      'data-address="' + escape(item.address) + '" '
+               +      'data-time_start="' + escape(item.time_start) + '" '
+               +      'data-time_end="' + escape(item.time_end) + '" '
+               +      'data-name="' + escape(item.name) + '" '
+               + '>' 
                +   item.name 
                +   ' (' 
                +   '<span class="event-search-downlight">'
@@ -49,9 +54,24 @@ var event_finder = (function() {
       },
       onChange: function(item) {
         gmaps.clear_all_markers();
-        gmaps.place_marker(item, 'event-found', 'blue');
+        gmaps.place_marker(get_selected('address'), 'event-found', 'blue');
+
+        var event_start_time = parseInt(get_selected('time_start'));
+        var event_end_time = parseInt(get_selected('time_end'));
+
+        event_setup_ride.set_date('departure', event_start_time);
+
+        if (event_end_time > 0) {
+          event_setup_ride.set_date('return', get_selected('time_end'));
+        }
       }
     })
+  }
+
+  var get_selected = function(q) {
+    var item = $('#find-event-search-result');
+
+    return item.attr('data-' + q);
   }
 
   var initialize = function() {

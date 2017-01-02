@@ -2,7 +2,7 @@ var profile = (function() {
   var _state = 'init';
 
   var initialize = function() {
-    console.log('initializing state ' + _state);
+    console.log('profile initializing state ' + _state);
     hide_profile_button();
 
     switch (_state) {
@@ -68,7 +68,6 @@ var profile = (function() {
       console.log(res);
       if (res.valid) {
         $('#profile-name').text(res.name);
-        console.log('hiding');
         display_intro(false);
 
         if (done != undefined) { done(); }

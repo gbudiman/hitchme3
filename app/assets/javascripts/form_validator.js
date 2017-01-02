@@ -15,7 +15,18 @@ var form_validator = (function() {
     }
   }
 
+  var linear_timeline = function(a, b) {
+    if (a.length > 0 && b.length > 0) {
+      if (moment(a) < moment(b)) {
+        return 0;
+      }
+    }
+
+    return 1;
+  }
+
   return {
-    not_empty: not_empty
+    not_empty: not_empty,
+    linear_timeline: linear_timeline
   }
 })()

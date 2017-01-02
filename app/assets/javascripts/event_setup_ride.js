@@ -47,7 +47,21 @@ var event_setup_ride = (function() {
     initialize();
   }
 
+  var set_date = function(type, val) {
+    var date = moment.unix(val).format('M/D/Y h:mm A ZZ');
+
+    switch(type) {
+      case 'departure':
+        $('#offer-ride-depart-time').val(date);
+        break;
+      case 'return':
+        $('#offer-ride-return-time').val(date);
+        break;
+    }
+  }
+
   return {
-    transition: transition
+    transition: transition,
+    set_date: set_date
   }
 })();
