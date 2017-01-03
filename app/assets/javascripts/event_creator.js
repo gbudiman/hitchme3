@@ -10,6 +10,7 @@ var event_creator = (function() {
       .on('keyup', run_validations)
       .on('dp.change', run_validations);
     $('#create-event-end-time')
+      .on('focus', default_or_fast_forward)
       .on('keyup', run_validations)
       .on('dp.change', run_validations);
     $('#create-event-start-time').datetimepicker();
@@ -17,9 +18,18 @@ var event_creator = (function() {
     return this;
   }
 
+  var default_or_fast_forward = function() {
+    if ($(this).val().length == 0) {
+      var time = moment($('#create-event-start-time').val().trim()).add(1, 'day');
+      $('#create-event-end-time').data('DateTimePicker').date(time);
+    }
+  }
+
   var reset_all_fields = function() {
     $('#create-event-name').val('');
     $('#create-event-address').val('');
+    $('#create-event-start-time').val('');
+    $('#create-event-end-time').val('');
   }
 
   var run_validations = function(highlight_error) {
@@ -44,11 +54,12 @@ var event_creator = (function() {
   }
 
   var get_data = function() {
+    var end_time = $('#create-event-end-time').val().trim();
     return {
       name: $('#create-event-name').val().trim(),
       address: $('#create-event-address').val().trim(),
-      start_time: $('#create-event-start-time').val().trim(),
-      end_time: $('#create-event-end-time').val().trim()
+      start_time: moment($('#create-event-start-time').val().trim()).format('X'),
+      end_time: end_time.length > 0 ? moment(end_time).format('X') : ''
     }
   }
 
@@ -91,6 +102,7 @@ var event_creator = (function() {
             $('#create-event-create').prop('disabled', false)
               .text('Create!')
             $('#create-event-start-time').val('');
+            $('#create-event-end-time').val('');
             run_validations(false);
             display_success(res.id)
           }

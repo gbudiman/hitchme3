@@ -53,8 +53,6 @@ var event_setup_ride = (function() {
   var initialize = function() {
     switch(_state) {
       case 'init':
-        
-        
         $('#offer-ride-departure').bootstrapToggle('on');
         var autocomplete_depart = new google.maps.places.Autocomplete(document.getElementById('offer-ride-depart-address'));
         var autocomplete_return = new google.maps.places.Autocomplete(document.getElementById('offer-ride-return-address'));
@@ -166,24 +164,56 @@ var event_setup_ride = (function() {
   var run_validations = function(highlight_error) {
     var departure_offered = $('#offer-ride-departure').prop('checked');
     var return_offered = $('#offer-ride-return').prop('checked');
+    var depart_time;
+    var return_time;
+    var event_start_time = moment.unix(event_finder.get_selected('time_start'));
+    var event_end_time = moment.unix(event_finder.get_selected('time_end'));
     var error_count = 0;
 
     display_success(false);
 
+    if ($('#offer-ride-depart-time').val().length == 0) {
+      $('#offer-ride-start-late').hide();
+    } else {
+      depart_time = moment($('#offer-ride-depart-time').val().trim());
+    }
+
+    if ($('#offer-ride-return-time').val().length == 0) {
+      $('#offer-ride-leave-early').hide();
+    } else {
+      return_time = moment($('#offer-ride-return-time').val().trim());
+    }
+
     if (departure_offered) {
       error_count += form_validator.not_empty($('#offer-ride-depart-address'), highlight_error);
       error_count += form_validator.not_empty($('#offer-ride-depart-time'), highlight_error);
+
+      if (depart_time > event_start_time) {
+        $('#offer-ride-start-late').show();
+      } else {
+        $('#offer-ride-start-late').hide();
+      }
     } else {
       form_validator.clear_error($('#offer-ride-depart-address'))
       form_validator.clear_error($('#offer-ride-depart-time'))
+
+      $('#offer-ride-start-late').hide();
     }
 
     if (return_offered) {
       error_count += form_validator.not_empty($('#offer-ride-return-address'), highlight_error);
       error_count += form_validator.not_empty($('#offer-ride-return-time'), highlight_error);
+
+      if (return_time < event_end_time) {
+        $('#offer-ride-leave-early').show();
+      } else {
+        $('#offer-ride-leave-early').hide();
+      }
     } else {
       form_validator.clear_error($('#offer-ride-return-address'))
       form_validator.clear_error($('#offer-ride-return-time'))
+
+      $('#offer-ride-leave-early').hide();
     }
 
     if (departure_offered && return_offered) {

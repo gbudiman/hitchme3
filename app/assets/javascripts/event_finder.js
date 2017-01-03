@@ -15,9 +15,9 @@ var event_finder = (function() {
           return '<div class="event-search-entry">'
                +   '<div class="event-search-title">' + escape(item.name) + '</div>'
                +   '<div>' + escape(item.address) + '</div>'
-               +   '<div>' + escape(moment.unix(item.time_start).format('M/D/Y h:mm A ZZ')) + '</div>'
+               +   '<div>' + escape(moment.unix(item.time_start).format('ddd M/D/Y h:mm A')) + '</div>'
                +   (item.time_end > 0 ?
-                     '<div>' + escape(moment.unix(item.time_end).format('M/D/Y h:mm A ZZ')) + '</div>' :
+                     '<div>' + escape(moment.unix(item.time_end).format('ddd M/D/Y h:mm A')) + '</div>' :
                      '')
                +   '<div>' + escape(item.organizer) + '</div>'
                + '</div>'
@@ -25,8 +25,8 @@ var event_finder = (function() {
         item: function(item, escape) {
           return '<div id="find-event-search-result" '
                +      'data-address="' + escape(item.address) + '" '
-               +      'data-time_start="' + escape(item.time_start) + '" '
-               +      'data-time_end="' + escape(item.time_end) + '" '
+               +      'data-time_start="' + item.time_start + '" '
+               +      'data-time_end="' + item.time_end + '" '
                +      'data-name="' + escape(item.name) + '" '
                +      'data-id="' + escape(item.id) + '" '
                + '>' 

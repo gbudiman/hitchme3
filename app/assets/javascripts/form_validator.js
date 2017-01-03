@@ -19,12 +19,9 @@ var form_validator = (function() {
     var a = obj_a.val().trim();
     var b = obj_b.val().trim();
 
-    console.log(a + ' ? ' + b);
 
     if (a.length > 0 && b.length > 0) {
-      console.log('checking linearity');
       if (moment(a) > moment(b)) {
-        console.log(a + ' <=> ' + b);
         obj_a.parent().addClass('has-error');
         obj_b.parent().addClass('has-error');
         return 1;

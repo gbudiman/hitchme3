@@ -63,4 +63,12 @@ class Trip < ApplicationRecord
 
     return result
   end
+
+  def self.find_offers event_id:, user_id:
+    return Trip.where(user_id: user_id, event_id: event_id)
+               .joins(:event)
+               .select('trips.*')
+               .select('events.address as event_address')
+               .select('events.time_start as event_start')
+  end
 end

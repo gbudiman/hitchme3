@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get      'auth/facebook/callback',           to: 'session#create'
 
   get      '/event/search/',                   to: 'event#search'
+  get      '/event/:id/my/offers',             to: 'event#offers'
   post     '/event/create',                    to: 'event#create'
 
   post     '/trip/create',                     to: 'trip#create'

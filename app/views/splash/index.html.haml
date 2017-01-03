@@ -45,6 +45,9 @@
                 %div{class: 'form-group'}
                   %input{type: 'text', class: 'form-control', placeholder: 'Enter departure time', id: 'offer-ride-depart-time'}
 
+                %div{class: 'alert alert-warning', id: 'offer-ride-start-late'}
+                  Your trip departs after event's start time
+
                 %div{class: 'trip-separator'} 
                   %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-return'}
                   Return trip
@@ -56,6 +59,9 @@
 
                 %div{class: 'alert alert-danger', id: 'offer-ride-non-linear-time'}
                   Your return trip date is before departure date
+
+                %div{class: 'alert alert-warning', id: 'offer-ride-leave-early'}
+                  Your return trip is before event's end time
 
                 %div{class: 'alert alert-success', id: 'offer-ride-created'}
                   Your trip offer has been created.
