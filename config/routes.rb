@@ -8,4 +8,6 @@ Rails.application.routes.draw do
 
   get      '/event/search/',                   to: 'event#search'
   post     '/event/create',                    to: 'event#create'
+
+  post     '/trip/create',                     to: 'trip#create'
 end

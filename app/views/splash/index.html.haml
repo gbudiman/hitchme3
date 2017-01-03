@@ -9,7 +9,7 @@
               %div Find Event
         %div{id: 'find-event-body', class: 'panel-collapse collapse in', role: 'tabpanel'}
           %div{class: 'panel-body'}
-            %select{class: 'form-control', placeholder: 'Type to Search Event...', id: 'find-event-search'}
+            %select{class: 'form-control', placeholder: 'Eg: dystopia rising', id: 'find-event-search'}
 
             %div{class: 'alert alert-warning alert-dismissible'}
               %button{type: 'button', class: 'close', 'data-dismiss' => 'alert'}
@@ -25,7 +25,7 @@
                   Find Ride To
                   %input{'data-toggle' => 'toggle', 'data-on' => 'Home', 'data-off' => 'Event', 'data-onstyle' => 'primary', 'data-offstyle' => 'primary', type: 'checkbox', class: 'form-control', id: 'find-ride-switch'}
               %li{role: 'presentation'}
-                %a{href: '#offer-ride', 'data-toggle' => 'tab', id: 'setup-ride-tab'} Setup Ride
+                %a{href: '#offer-ride', 'data-toggle' => 'tab', id: 'setup-ride-tab'} Offer Ride
 
             %div{class: 'tab-content'}
               %div{role: 'tabpanel', class: 'tab-pane fade in active', id: 'find-ride'}
@@ -57,13 +57,12 @@
                 %div{class: 'alert alert-danger', id: 'offer-ride-non-linear-time'}
                   Your return trip date is before departure date
 
+                %div{class: 'alert alert-success', id: 'offer-ride-created'}
+                  Your trip offer has been created.
+
                 %div{class: 'row bottom-added'}
                 %div{class: 'pull-right'}
-                  %button{type: 'button', class: 'btn btn-primary', id: 'offer-trip-create'} Setup Trip
-
-                
-
-
+                  %button{type: 'button', class: 'btn btn-primary', id: 'offer-ride-create'} Setup Trip
 
     %div{class: 'col-xs-12 panel-group row', id: 'create-event', role: 'tablist'}
       %div{class: 'panel panel-primary'}

@@ -28,6 +28,7 @@ var event_finder = (function() {
                +      'data-time_start="' + escape(item.time_start) + '" '
                +      'data-time_end="' + escape(item.time_end) + '" '
                +      'data-name="' + escape(item.name) + '" '
+               +      'data-id="' + escape(item.id) + '" '
                + '>' 
                +   item.name 
                +   ' (' 

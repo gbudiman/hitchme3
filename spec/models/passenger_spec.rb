@@ -9,6 +9,8 @@ RSpec.describe Passenger, type: :model do
                         event_id: @event.id,
                         encoded_polylines: 'dummy',
                         time_start: '2014/5/12',
+                        address: '123 W. Ave, CA',
+                        trip_type: Trip.trip_types[:to_event],
                         space_passenger: 1,
                         space_cargo: 1
     @passenger = Passenger.new trip_id: @trip.id,

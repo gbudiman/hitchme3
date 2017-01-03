@@ -8,6 +8,8 @@ RSpec.describe Trip, type: :model do
                      event_id: @event.id,
                      encoded_polylines: 'dummy',
                      time_start: '2014/5/12',
+                     address: '123 W. Ave, CA',
+                     trip_type: Trip.trip_types[:to_event],
                      space_passenger: 1,
                      space_cargo: 1
   end
@@ -43,6 +45,14 @@ RSpec.describe Trip, type: :model do
 
     it 'should fail on empty time_start' do
       @trip.time_start = nil
+    end
+
+    it 'should fail on empty address' do
+      @trip.address = nil
+    end
+
+    it 'should fail on empty type' do
+      @trip.trip_type = nil
     end
 
     it 'should fail on empty space_passenger' do

@@ -60,11 +60,13 @@ var event_setup_ride = (function() {
         var autocomplete_return = new google.maps.places.Autocomplete(document.getElementById('offer-ride-return-address'));
         autocomplete_depart.addListener('place_changed', function() {
           trigger_route_to('event');
+          run_validations();
           $('#offer-ride-return-address').val(($('#offer-ride-depart-address')).val());
 
         })
         autocomplete_return.addListener('place_changed', function() {
           trigger_route_to('home');
+          run_validations();
         })
 
         $('#offer-ride-depart-time').datetimepicker();
@@ -109,9 +111,50 @@ var event_setup_ride = (function() {
           run_validations();
         });
 
+        $('#offer-ride-create').on('click', function() {
+          $('#offer-ride-create').prop('disabled', false)
+            .text('Processing...');
+
+          $.ajax({
+            method: 'POST',
+            url: '/trip/create',
+            data: get_data()
+          }).done(function(res) {
+            if (res.status == 'OK') {
+              var result = res.result;
+              console.log(result);
+              display_success(true);
+            }
+          })
+        })
+
         reset_all_fields();
         run_validations(false);
         break;
+    }
+  }
+
+  var display_success = function(val) {
+    if (val) {
+      $('#offer-ride-created').show();
+    } else {
+      $('#offer-ride-created').hide();
+    }
+  }
+
+  var get_data = function() {
+    return {
+      event_id: event_finder.get_selected('id'),
+      offer_departure: $('#offer-ride-departure').prop('checked'),
+      offer_return: $('#offer-ride-return').prop('checked'),
+      time_start: moment($('#offer-ride-depart-time').val().trim()).format('X'),
+      time_end: moment($('#offer-ride-return-time').val().trim()).format('X'),
+      address_depart_from: $('#offer-ride-depart-address').val().trim(),
+      address_return_to: $('#offer-ride-return-address').val().trim(),
+      space_passenger: 0,
+      space_cargo: 0,
+      to_event_encoded_polylines: 'ttt',
+      to_home_encoded_polylines: 'sss',
     }
   }
 
@@ -125,6 +168,8 @@ var event_setup_ride = (function() {
     var return_offered = $('#offer-ride-return').prop('checked');
     var error_count = 0;
 
+    display_success(false);
+
     if (departure_offered) {
       error_count += form_validator.not_empty($('#offer-ride-depart-address'), highlight_error);
       error_count += form_validator.not_empty($('#offer-ride-depart-time'), highlight_error);
@@ -134,7 +179,6 @@ var event_setup_ride = (function() {
     }
 
     if (return_offered) {
-      console.log('return offered');
       error_count += form_validator.not_empty($('#offer-ride-return-address'), highlight_error);
       error_count += form_validator.not_empty($('#offer-ride-return-time'), highlight_error);
     } else {
@@ -158,9 +202,9 @@ var event_setup_ride = (function() {
     }
 
     if (!departure_offered && !return_offered) {
-      $('#offer-trip-create').prop('disabled', true);
+      $('#offer-ride-create').prop('disabled', true);
     } else {
-      $('#offer-trip-create').prop('disabled', error_count > 0);
+      $('#offer-ride-create').prop('disabled', error_count > 0);
     }
   }
 

@@ -155,10 +155,6 @@ var gmaps = (function() {
     $(_interactions).empty();
   }  
 
-  var get_polylines = function() {
-    return _polylines;
-  }
-
   return {
     initialize: initialize,
     clear_route: clear_route,
@@ -170,8 +166,7 @@ var gmaps = (function() {
     get_canvas_height: get_canvas_height,
     place_marker: place_marker,
     route: route,
-    set_bounds: set_bounds,
-    get_polylines: get_polylines
+    set_bounds: set_bounds
   }
 })()
 
