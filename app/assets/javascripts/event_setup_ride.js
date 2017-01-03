@@ -153,7 +153,10 @@ var event_setup_ride = (function() {
   }
 
   var get_data = function() {
-    return {
+    var to_event_polysteps = gmaps.encode_route('route-to-event');
+    var to_home_polysteps = gmaps.encode_route('route-to-home');
+
+    var data = {
       event_id: event_finder.get_selected('id'),
       offer_departure: $('#offer-ride-departure').prop('checked'),
       offer_return: $('#offer-ride-return').prop('checked'),
@@ -162,10 +165,20 @@ var event_setup_ride = (function() {
       address_depart_from: $('#offer-ride-depart-address').val().trim(),
       address_return_to: $('#offer-ride-return-address').val().trim(),
       space_passenger: 0,
-      space_cargo: 0,
-      to_event_encoded_polylines: gmaps.encode_route('route-to-event'),
-      to_home_encoded_polylines: gmaps.encode_route('route-to-home')
+      space_cargo: 0
     }
+
+    if (data.offer_departure) {
+      data.to_event_encoded_polylines = to_event_polysteps.polysteps;
+      data.to_event_durations = to_event_polysteps.durations;
+    }
+
+    if (data.offer_return) {
+      data.to_home_encoded_polylines = to_home_polysteps.polysteps;
+      data.to_home_durations = to_home_polysteps.durations;
+    }
+
+    return data;
   }
 
   var set_nonlinear_error = function(val) {

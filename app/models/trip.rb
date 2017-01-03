@@ -42,6 +42,9 @@ class Trip < ApplicationRecord
 
         departure.save
         if departure.id
+          Step.create_polylines encoded: departure.encoded_polylines,
+                                durations: params[:to_event_durations],
+                                trip_id: departure.id
           result[:to_event] = departure.id
         end
       end
@@ -56,6 +59,9 @@ class Trip < ApplicationRecord
 
         trip_return.save
         if trip_return.id
+          Step.create_polylines encoded: trip_return.encoded_polylines,
+                                durations: params[:to_home_durations],
+                                trip_id: trip_return.id
           result[:to_home] = trip_return.id
         end
       end

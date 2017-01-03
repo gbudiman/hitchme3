@@ -4,6 +4,7 @@ var gmaps = (function() {
   var _canvas = '#map-canvas'
   var _interactions = '#map-interactions'
   var _polylines;
+  var _steps;
 
   var map = function() { return _map; }
   var get_canvas_height = function() {
@@ -19,6 +20,7 @@ var gmaps = (function() {
   var initialize = function() {
     _markers = new Object();
     _polylines = new Object();
+    _steps = new Object();
 
     GMaps.geocode({
       address: 'Los Angeles, CA',
@@ -65,16 +67,24 @@ var gmaps = (function() {
   }
 
   var encode_route = function(name) {
-    if (_polylines[name] != undefined) {
+    if (_steps[name] != undefined) {
       var latlngs = new Array();
-      $.each(_polylines[name].latLngs.b, function(i, x) {
-        $.each(x.b, function(j, y) {
-          latlngs.push([y.lat(), y.lng()]);
-        })
+      var durations = new Array();
+      $.each(_steps[name], function(i, x) {
+        latlngs.push([x.location.lat(), x.location.lng()])
+        durations.push(x.duration);
+      })
+      // $.each(_steps[name].latLngs.b, function(i, x) {
+      //   $.each(x.b, function(j, y) {
+      //     latlngs.push([y.lat(), y.lng()]);
+      //   })
         
-      });
+      // });
 
-      return polyline.encode(latlngs);
+      return {
+        polysteps: polyline.encode(latlngs),
+        durations: durations
+      }
     }
   }
 
@@ -96,37 +106,81 @@ var gmaps = (function() {
   var route = function(a, b, name, color, start, done) {
     clear_route(name);
     var paths = new Array();
+    var steps = new Array();
+    var direction_service = new google.maps.DirectionsService;
 
     if (start != undefined) { start(); }
-    return new Promise(
-      function(resolve, reject) {
-        geocode(a).then(function(ll_a) {
-          geocode(b).then(function(ll_b) {
-            _map.travelRoute({
-              origin: [ll_a.lat(), ll_a.lng()],
-              destination: [ll_b.lat(), ll_b.lng()],
-              travelMode: 'driving',
-              step: function(e) {
-                paths = paths.concat(e.path);
-              },
-              end: function() {
-                _polylines[name] = new google.maps.Polyline({
-                  path: paths,
-                  strokeColor: color,
-                  strokeOpacity: 0.5,
-                  strokeWeight: 6
-                })
-                _polylines[name].setMap(_map.map);
 
-                if (done != undefined) {
-                  done();
-                }
-              }
+    direction_service.route({
+      origin: a,
+      destination: b,
+      optimizeWaypoints: true,
+      travelMode: 'DRIVING'
+    }, function(response, status) {
+      if (status === 'OK') {
+        console.log(response);
+        $.each(response.routes[0].legs, function(i, leg) {
+          $.each(leg.steps, function(j, step) {
+            if (steps.length == 0) { 
+              steps.push({
+                location: step.start_location,
+                duration: 0
+              })
+            }
+
+            steps.push({
+              location: step.end_location,
+              duration: step.duration.value
             })
+
+            paths = paths.concat(step.path);
           })
         })
+
+        _polylines[name] = new google.maps.Polyline({
+          path: paths,
+          strokeColor: color,
+          strokeOpacity: 0.5,
+          strokeWeight: 6
+        })
+        _polylines[name].setMap(_map.map);
+        _steps[name] = steps;
+
+        if (done != undefined) {
+          done();
+        }
       }
-    )
+    })
+    // return new Promise(
+    //   function(resolve, reject) {
+    //     geocode(a).then(function(ll_a) {
+    //       geocode(b).then(function(ll_b) {
+    //         _map.travelRoute({
+    //           origin: [ll_a.lat(), ll_a.lng()],
+    //           destination: [ll_b.lat(), ll_b.lng()],
+    //           travelMode: 'driving',
+    //           step: function(e) {
+    //             paths = paths.concat(e.path);
+    //           },
+    //           end: function() {
+    //             _polylines[name] = new google.maps.Polyline({
+    //               path: paths,
+    //               strokeColor: color,
+    //               strokeOpacity: 0.5,
+    //               strokeWeight: 6
+    //             })
+    //             _polylines[name].setMap(_map.map);
+
+    //             console.log(_polylines[name]);
+    //             if (done != undefined) {
+    //               done();
+    //             }
+    //           }
+    //         })
+    //       })
+    //     })
+    //   }
+    // )
   }
 
   var geocode = function(address) {
