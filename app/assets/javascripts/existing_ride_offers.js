@@ -65,7 +65,7 @@ var existing_ride_offers = (function() {
       var id = parseInt($(this).attr('data-id'));
       var delete_type = $(this).attr('data-delete-trip-type');
       $('#modal-confirm-delete-ride-offer').modal('show');
-      $('#btn-confirm-ride-offer-deletion').on('click', function() {
+      $('#btn-confirm-ride-offer-deletion').off('click').on('click', function() {
 
         execute_delete(id, delete_type);
       })
