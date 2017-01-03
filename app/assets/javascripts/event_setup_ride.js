@@ -1,5 +1,6 @@
 var event_setup_ride = (function() {
   var _state = 'init';
+  var _event_id;
 
   var get_route = function(destination) {
     switch(destination) {
@@ -122,6 +123,9 @@ var event_setup_ride = (function() {
               var result = res.result;
               console.log(result);
               display_success(true);
+              $('#offer-ride-depart-time').val('');
+              $('#offer-ride-return-time').val('');
+              existing_ride_offers.fetch(_event_id);
             }
           })
         })
@@ -257,8 +261,13 @@ var event_setup_ride = (function() {
     }
   }
 
+  var set_event_id = function(id) {
+    _event_id = id;
+  }
+
   return {
     transition: transition,
-    set_date: set_date
+    set_date: set_date,
+    set_event_id: set_event_id
   }
 })();

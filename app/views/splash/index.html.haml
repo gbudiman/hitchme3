@@ -1,3 +1,14 @@
+%div{class: 'modal fade', id: 'modal-confirm-delete-ride-offer'}
+  %div{class: 'modal-dialog'}
+    %div{class: 'modal-content'}
+      %div{class: 'modal-header'}
+        %button{type: 'button', class: 'close', 'data-dismiss' => 'modal'}
+          %span &times;
+        %h4{class: 'modal-title'} Sure to Delete?
+      %div{class: 'modal-footer'}
+        %button{type: 'button', class: 'btn btn-default', 'data-dismiss' => 'modal'} Cancel
+        %button{type: 'button', class: 'btn btn-danger', id: 'btn-confirm-ride-offer-deletion'} Delete
+
 %div{class: 'row container-fluid', id: 'main-content'}
   %div{class: 'col-xs-12 col-lg-8', id: 'map-canvas'}
   %div{class: 'col-xs-12 col-lg-4', id: 'map-interactions'}
@@ -35,8 +46,9 @@
                 %button{type: 'button', class: 'btn btn-primary btn-block', id: 'find-ride-search'} Search
 
               %div{role: 'tabpanel', class: 'tab-pane fade', id: 'offer-ride'}
+                %div{class: 'list-group', id: 'existing-ride-offers'}
+
                 %div{class: 'trip-separator'}
-                  
                   %input{'data-toggle' => 'toggle', type: 'checkbox', class: 'form-control', id: 'offer-ride-departure'}
                   Departure
 

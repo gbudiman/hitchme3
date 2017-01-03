@@ -6,7 +6,6 @@ class EventController < ApplicationController
                       time_start: Time.at(params[:start_time].to_i),
                       time_end: params[:end_time].length == 0 ? nil : Time.at(params[:end_time].to_i)
 
-    ap event
     event.save
     
     render json: {

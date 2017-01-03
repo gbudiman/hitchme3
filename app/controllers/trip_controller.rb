@@ -6,4 +6,12 @@ class TripController < ApplicationController
       result: trips
     }
   end
+
+  def destroy
+    destroyed = Trip.find(params[:id].to_i).destroy
+
+    render json: {
+      status: destroyed ? 'OK' : 'error'
+    }
+  end
 end

@@ -60,11 +60,14 @@ var event_finder = (function() {
         var event_start_time = parseInt(get_selected('time_start'));
         var event_end_time = parseInt(get_selected('time_end'));
 
+        event_setup_ride.set_event_id(item);
         event_setup_ride.set_date('departure', event_start_time);
 
         if (event_end_time > 0) {
           event_setup_ride.set_date('return', get_selected('time_end'));
         }
+
+        existing_ride_offers.fetch(item);
       }
     })
   }
