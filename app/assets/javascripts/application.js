@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require gmaps_lib
 //= require selectize.min
+//= require polylines
 //= require turbolinks
 //= require moment-with-locales.min
 //= require_tree .

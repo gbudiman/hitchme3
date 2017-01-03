@@ -2,21 +2,26 @@ var event_setup_ride = (function() {
   var _state = 'init';
   var _event_id;
 
+  var invalidate = function() {
+    $('#offer-ride-create').prop('disabled', true);
+  }
+
   var get_route = function(destination) {
     switch(destination) {
       case 'to_event':
         gmaps.route($('#offer-ride-depart-address').val(), 
                     event_finder.get_selected('address'),
-                    'route-to-event', 'red');
+                    'route-to-event', 'red', invalidate, run_validations);
         break;
       case 'to_home':
         gmaps.route(event_finder.get_selected('address'), 
                     $('#offer-ride-return-address').val(),
-                    'route-to-home', 'green');
+                    'route-to-home', 'green', invalidate, run_validations);
         break;
     }
+
+    existing_ride_offers.deactivate_highlight(destination);
     gmaps.set_bounds();
-    
   }
 
   var reset_all_fields = function() {
@@ -58,14 +63,14 @@ var event_setup_ride = (function() {
         var autocomplete_depart = new google.maps.places.Autocomplete(document.getElementById('offer-ride-depart-address'));
         var autocomplete_return = new google.maps.places.Autocomplete(document.getElementById('offer-ride-return-address'));
         autocomplete_depart.addListener('place_changed', function() {
-          trigger_route_to('event');
           run_validations();
+          trigger_route_to('event');
           $('#offer-ride-return-address').val(($('#offer-ride-depart-address')).val());
 
         })
         autocomplete_return.addListener('place_changed', function() {
-          trigger_route_to('home');
           run_validations();
+          trigger_route_to('home');
         })
 
         $('#offer-ride-depart-time').datetimepicker();
@@ -87,13 +92,13 @@ var event_setup_ride = (function() {
           gmaps.clear_route('route-to-event');
           if ($(this).prop('checked')) {
             if ($('#offer-ride-depart-address').val().trim().length > 0) {
+              run_validations();
               trigger_route_to('event');
             }
           } else {
             gmaps.clear_marker('ride-offered-start');
-
+            run_validations();
           }
-          run_validations();
         });
 
         $('#offer-ride-return').on('change', function() {
@@ -101,17 +106,17 @@ var event_setup_ride = (function() {
           if ($(this).prop('checked')) {
             console.log('checked');
             if ($('#offer-ride-return-address').val().trim().length > 0) {
+              run_validations();
               trigger_route_to('home');
             }
           } else {
             gmaps.clear_marker('ride-offered-end');
-            
+            run_validations();
           }
-          run_validations();
         });
 
         $('#offer-ride-create').on('click', function() {
-          $('#offer-ride-create').prop('disabled', false)
+          $('#offer-ride-create').prop('disabled', true)
             .text('Processing...');
 
           $.ajax({
@@ -139,6 +144,9 @@ var event_setup_ride = (function() {
   var display_success = function(val) {
     if (val) {
       $('#offer-ride-created').show();
+
+      $('#offer-ride-create').prop('disabled', false)
+        .text('Create!')
     } else {
       $('#offer-ride-created').hide();
     }
@@ -155,8 +163,8 @@ var event_setup_ride = (function() {
       address_return_to: $('#offer-ride-return-address').val().trim(),
       space_passenger: 0,
       space_cargo: 0,
-      to_event_encoded_polylines: 'ttt',
-      to_home_encoded_polylines: 'sss',
+      to_event_encoded_polylines: gmaps.encode_route('route-to-event'),
+      to_home_encoded_polylines: gmaps.encode_route('route-to-home')
     }
   }
 

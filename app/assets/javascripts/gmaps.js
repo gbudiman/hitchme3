@@ -60,8 +60,21 @@ var gmaps = (function() {
     // $.each(_polylines[name], function(_junk, line) {
     // })
     if (_polylines[name] != undefined) {
-      console.log(_polylines[name]);
       _polylines[name].setMap(null);  
+    }
+  }
+
+  var encode_route = function(name) {
+    if (_polylines[name] != undefined) {
+      var latlngs = new Array();
+      $.each(_polylines[name].latLngs.b, function(i, x) {
+        $.each(x.b, function(j, y) {
+          latlngs.push([y.lat(), y.lng()]);
+        })
+        
+      });
+
+      return polyline.encode(latlngs);
     }
   }
 
@@ -76,13 +89,15 @@ var gmaps = (function() {
       bounds.extend(x.position);
     })
 
+    console.log(_markers);
     _map.fitBounds(bounds);
   }
 
-  var route = function(a, b, name, color) {
+  var route = function(a, b, name, color, start, done) {
     clear_route(name);
     var paths = new Array();
 
+    if (start != undefined) { start(); }
     return new Promise(
       function(resolve, reject) {
         geocode(a).then(function(ll_a) {
@@ -102,6 +117,10 @@ var gmaps = (function() {
                   strokeWeight: 6
                 })
                 _polylines[name].setMap(_map.map);
+
+                if (done != undefined) {
+                  done();
+                }
               }
             })
           })
@@ -136,14 +155,11 @@ var gmaps = (function() {
 
           _map.setCenter(latlng.lat(), latlng.lng());
           var marker = _map.addMarker({
-            // lat: latlng.lat(),
-            // lng: latlng.lng(),
             position: latlng,
             icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
           })
 
           _markers[id] = marker;
-          console.log(_markers);
           if (done != undefined) { done(); }
         }
       }
@@ -158,9 +174,11 @@ var gmaps = (function() {
   return {
     initialize: initialize,
     clear_route: clear_route,
-    destroy: destroy,
+    
     clear_all_markers: clear_all_markers,
     clear_marker: clear_marker,
+    destroy: destroy,
+    encode_route: encode_route,
     map: map,
     reposition: reposition,
     get_canvas_height: get_canvas_height,
