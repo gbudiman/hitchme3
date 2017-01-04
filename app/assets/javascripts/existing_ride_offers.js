@@ -25,7 +25,19 @@ var existing_ride_offers = (function() {
 
     if (data.length == 0) { return; }
     $('#existing-ride-offers')
-      .append('<h4>Existing Offers</h4>')
+      //.append('<h4>Existing Offers</h4>')
+      .append($('<h4/>')
+                .append('Existing Offers')
+                .append($('<a/>')
+                          .attr('href', '#')
+                          .attr('id', 'existing-ride-offers-refresh')
+                          .append($('<span/>')
+                                    .addClass('pull-right glyphicon glyphicon-refresh'))))
+
+    $('#existing-ride-offers-refresh').on('click', function() {
+      fetch(_event_id);
+      return false;
+    })
 
     $.each(data, function(i, d) {
       var trip_data;
@@ -64,11 +76,7 @@ var existing_ride_offers = (function() {
     $('a.delete-ride-offer[data-id]').on('click', function() {
       var id = parseInt($(this).attr('data-id'));
       var delete_type = $(this).attr('data-delete-trip-type');
-      $('#modal-confirm-delete-ride-offer').modal('show');
-      $('#btn-confirm-ride-offer-deletion').off('click').on('click', function() {
-
-        execute_delete(id, delete_type);
-      })
+      execute_delete(id, delete_type);
       return false;
     })
 
@@ -118,15 +126,29 @@ var existing_ride_offers = (function() {
     return false;
   }
 
+  var mark_as_deleted = function(id, val) {
+    var obj = $('a.delete-ride-offer[data-id="' + id + '"]').parent().parent();
+
+    if (val) {
+      obj.find('div').addClass('deleted');
+    } else {
+      obj.find('div').removeClass('deleted');
+    }
+
+    return obj;
+  }
+
   var execute_delete = function(id, type) {
     var obj = $('a.delete-ride-offer[data-id="' + id + '"]');
-    $('#btn-confirm-ride-offer-deletion')
-      .prop('disabled', true)
-      .text('Deleting...');
 
     obj
       .removeAttr('href')
       .text('Deleting...');
+
+    // obj.parent().parent().removeClass('active')
+    //   .find('div').addClass('deleted');
+
+    mark_as_deleted(id, true).removeClass('active');
 
     $.ajax({
       url: '/trip/destroy',
@@ -134,14 +156,22 @@ var existing_ride_offers = (function() {
       data: { id: id }
     }).done(function(res) {
       if (res.status == 'OK') {
-        obj.parent().parent().remove();
+        //fetch(_event_id);
 
-        $('#btn-confirm-ride-offer-deletion')
-          .prop('disabled', false)
-          .text('Delete');
-        $('#modal-confirm-delete-ride-offer').modal('hide');
+        var timeout_id = window.setTimeout(function() {
+          obj.parent().parent().hide(400, function() {
+            $(this).remove();
+          })
+        }, 3000);
 
-        fetch(_event_id);
+        obj
+          .attr('href', '#')
+          .text('Undo')
+          .off('click').on('click', function() {
+            undo_delete(id, type, timeout_id);
+
+            return false;
+          })
         switch(type) {
           case 'to_event':
             gmaps.clear_marker('ride-offered-start');
@@ -152,6 +182,33 @@ var existing_ride_offers = (function() {
             gmaps.clear_route('route-to-home');
             break;
         }
+      }
+    })
+  }
+
+  var undo_delete = function(id, type, timeout_id) {
+    window.clearTimeout(timeout_id);
+    var obj = $('a.delete-ride-offer[data-id="' + id + '"]');
+
+    obj
+      .removeAttr('href')
+      .text('Undeleting...');
+
+    $.ajax({
+      url: '/trip/undestroy',
+      method: 'POST',
+      data: { id: id }
+    }).done(function(res) {
+      if (res.status == 'OK') {
+        mark_as_deleted(id, false);
+
+        obj
+          .attr('href', '#')
+          .text('Delete')
+          .off('click').on('click', function() {
+            execute_delete(id, type);
+            return false;
+          })
       }
     })
   }

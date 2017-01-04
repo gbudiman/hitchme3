@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170103015940) do
+ActiveRecord::Schema.define(version: 20170104101237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,13 +29,14 @@ ActiveRecord::Schema.define(version: 20170103015940) do
   end
 
   create_table "passengers", force: :cascade do |t|
-    t.integer  "trip_id",      null: false
-    t.bigint   "driver_id",    null: false
-    t.bigint   "passenger_id", null: false
-    t.string   "address",      null: false
-    t.datetime "pickup_time",  null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.integer  "trip_id",           null: false
+    t.bigint   "driver_id",         null: false
+    t.bigint   "passenger_id",      null: false
+    t.string   "address",           null: false
+    t.datetime "pickup_time",       null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.boolean  "mark_for_deletion"
     t.index ["driver_id"], name: "index_passengers_on_driver_id", using: :btree
     t.index ["passenger_id"], name: "index_passengers_on_passenger_id", using: :btree
     t.index ["trip_id"], name: "index_passengers_on_trip_id", using: :btree
@@ -54,16 +55,17 @@ ActiveRecord::Schema.define(version: 20170103015940) do
   end
 
   create_table "trips", force: :cascade do |t|
-    t.bigint   "user_id",           null: false
-    t.integer  "event_id",          null: false
-    t.text     "encoded_polylines", null: false
-    t.datetime "time_start",        null: false
-    t.integer  "space_passenger",   null: false
-    t.integer  "space_cargo",       null: false
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
-    t.string   "address",           null: false
-    t.integer  "trip_type",         null: false
+    t.bigint   "user_id",                           null: false
+    t.integer  "event_id",                          null: false
+    t.text     "encoded_polylines",                 null: false
+    t.datetime "time_start",                        null: false
+    t.integer  "space_passenger",                   null: false
+    t.integer  "space_cargo",                       null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.string   "address",                           null: false
+    t.integer  "trip_type",                         null: false
+    t.boolean  "mark_for_deletion", default: false
     t.index ["event_id"], name: "index_trips_on_event_id", using: :btree
     t.index ["user_id", "event_id", "time_start"], name: "index_trips_on_user_id_and_event_id_and_time_start", unique: true, using: :btree
     t.index ["user_id"], name: "index_trips_on_user_id", using: :btree

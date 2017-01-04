@@ -71,7 +71,7 @@ class Trip < ApplicationRecord
   end
 
   def self.find_offers event_id:, user_id:
-    return Trip.where(user_id: user_id, event_id: event_id)
+    return Trip.where(user_id: user_id, event_id: event_id, mark_for_deletion: false)
                .joins(:event)
                .select('trips.id as id,
                         trips.address as address,

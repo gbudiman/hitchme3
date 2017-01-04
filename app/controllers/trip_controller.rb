@@ -8,10 +8,18 @@ class TripController < ApplicationController
   end
 
   def destroy
-    destroyed = Trip.find(params[:id].to_i).destroy
+    destroyed = Trip.find(params[:id].to_i).update(mark_for_deletion: true)
 
     render json: {
       status: destroyed ? 'OK' : 'error'
+    }
+  end
+
+  def undestroy
+    undestroyed = Trip.find(params[:id].to_i).update(mark_for_deletion: false)
+
+    render json: {
+      status: undestroyed ? 'OK' : 'error'
     }
   end
 end

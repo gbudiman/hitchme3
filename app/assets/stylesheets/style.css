@@ -51,3 +51,9 @@ input.form-control, .toggle {
 .event-search-entry {
   border-bottom: 1px solid #ccc;
 }
+
+.deleted {
+  color: #aaa;
+  text-decoration: line-through;
+  font-style: italic;
+}

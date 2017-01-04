@@ -12,4 +12,5 @@ Rails.application.routes.draw do
 
   post     '/trip/create',                     to: 'trip#create'
   delete   '/trip/destroy',                    to: 'trip#destroy'
+  post     '/trip/undestroy',                  to: 'trip#undestroy'
 end
