@@ -269,8 +269,7 @@ var event_setup_ride = (function() {
   }
 
   var set_date = function(type, val) {
-    console.log('set date: ' + val);
-    var date = moment.unix(val).format('M/D/Y h:mm A');
+    var date = moment.unix(val).format('ddd M/D/Y h:mm A');
 
     switch(type) {
       case 'departure':

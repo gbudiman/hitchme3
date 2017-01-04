@@ -23,14 +23,16 @@
               %li{role: 'presentation', class: 'active'}
                 %a{href: '#find-ride', 'data-toggle' => 'tab', id: 'find-ride-tab'} 
                   Find Ride To
-                  %input{'data-toggle' => 'toggle', 'data-on' => 'Home', 'data-off' => 'Event', 'data-onstyle' => 'primary', 'data-offstyle' => 'primary', type: 'checkbox', class: 'form-control', id: 'find-ride-switch'}
+                  %input{'data-toggle' => 'toggle', 'data-on' => 'Home', 'data-off' => 'Event', 'data-onstyle' => 'primary', 'data-offstyle' => 'primary', type: 'checkbox', class: 'form-control', id: 'find-ride-switch', checked: true}
               %li{role: 'presentation'}
                 %a{href: '#offer-ride', 'data-toggle' => 'tab', id: 'setup-ride-tab'} Offer Ride
 
             %div{class: 'tab-content'}
               %div{role: 'tabpanel', class: 'tab-pane fade in active', id: 'find-ride'}
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup address', id: 'find-ride-address'}
-                %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup time', id: 'find-ride-address'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup address', id: 'find-ride-address'}
+                %div{class: 'form-group'}
+                  %input{type: 'text', class: 'form-control', placeholder: 'Enter pickup time', id: 'find-ride-start-time'}
 
                 %button{type: 'button', class: 'btn btn-primary btn-block', id: 'find-ride-search'} Search
 

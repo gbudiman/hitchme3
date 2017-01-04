@@ -90,6 +90,7 @@ var gmaps = (function() {
 
   var initialize_external_interations = function() {
     event_setup_ride.transition('init');
+    event_find_ride.attach();
     event_creator.transition('init_gmaps');
   }
 

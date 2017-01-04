@@ -62,9 +62,11 @@ var event_finder = (function() {
 
         event_setup_ride.set_event_id(item);
         event_setup_ride.set_date('departure', event_start_time);
+        event_find_ride.transition('init');
+        event_find_ride.set_date(event_start_time, event_end_time);
 
         if (event_end_time > 0) {
-          event_setup_ride.set_date('return', get_selected('time_end'));
+          event_setup_ride.set_date('return', event_end_time);
         }
 
         existing_ride_offers.fetch(item);
