@@ -18,6 +18,13 @@ var existing_ride_offers = (function() {
     })
   }
 
+  var sort_by_ride_time = function(a, b) {
+    var ma = moment(a.time_start);
+    var mb = moment(b.time_start);
+
+    return ma > mb;
+  }
+
   var render = function(data) {
     $('#existing-ride-offers')
       .empty();
@@ -39,7 +46,7 @@ var existing_ride_offers = (function() {
       return false;
     })
 
-    $.each(data, function(i, d) {
+    $.each(data.sort(sort_by_ride_time), function(i, d) {
       var trip_data;
 
       var s = $('<a/>')
