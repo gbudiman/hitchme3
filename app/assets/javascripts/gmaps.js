@@ -45,6 +45,7 @@ var gmaps = (function() {
   }
 
   var clear_all_markers = function() {
+    console.log('gmaps.js: All markers cleared!');
     $.each(_markers, function(i, x) {
       x.setMap(null);
     })
@@ -217,6 +218,8 @@ var gmaps = (function() {
               })
 
               _markers[id] = marker;
+              console.log('gmaps.js: Marker placed: ' + id);
+              console.log('Resolved: ' + latlng.lat() + ',' + latlng.lng());
               if (done != undefined) { done(); }
               resolve(latlng);
             }

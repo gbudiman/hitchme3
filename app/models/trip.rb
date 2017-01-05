@@ -97,11 +97,13 @@ class Trip < ApplicationRecord
                      steps.lng_e6 AS step_lng_e6,
                      steps.time_estimation AS step_estimation,
                      trips.id AS trip_id,
+                     trips.user_id AS trip_user_id,
                      trips.address AS trip_start_address,
                      trips.time_start AS trip_start_time,
                      trips.trip_type AS trip_type,
                      events.address AS event_address').each do |r|
       result[r[:trip_id]] ||= {
+        trip_organizer: r[:trip_user_id],
         trip_type: r[:trip_type],
         trip_start_address: r[:trip_start_address],
         trip_start_time: r[:trip_start_time],

@@ -14,4 +14,5 @@ Rails.application.routes.draw do
   delete   '/trip/destroy',                    to: 'trip#destroy'
   post     '/trip/undestroy',                  to: 'trip#undestroy'
   get      '/trip/search',                     to: 'trip#search'
+  get      '/trip/steps',                      to: 'trip#steps'
 end
