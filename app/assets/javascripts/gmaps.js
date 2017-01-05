@@ -5,6 +5,7 @@ var gmaps = (function() {
   var _interactions = '#map-interactions'
   var _polylines;
   var _steps;
+  var _cached;
 
   var map = function() { return _map; }
   var get_canvas_height = function() {
@@ -21,6 +22,7 @@ var gmaps = (function() {
     _markers = new Object();
     _polylines = new Object();
     _steps = new Object();
+    _cached = new Object();
 
     GMaps.geocode({
       address: 'Los Angeles, CA',
@@ -122,6 +124,9 @@ var gmaps = (function() {
     var direction_service = new google.maps.DirectionsService;
     var waypoints = new Array();
 
+    var total_distance = 0;
+    var total_duration = 0;
+
     if (start != undefined) { start(); }
 
     if (options.waypoints != undefined) {
@@ -150,6 +155,9 @@ var gmaps = (function() {
         console.log(response);
         console.log('Saving to steps: ' + name);
         $.each(response.routes[0].legs, function(i, leg) {
+          total_distance += leg.distance.value;
+          total_duration += leg.duration.value;
+
           $.each(leg.steps, function(j, step) {
             if (steps.length == 0) { 
               steps.push({
@@ -175,6 +183,17 @@ var gmaps = (function() {
         })
         _polylines[name].setMap(_map.map);
         _steps[name] = steps;
+
+        if (options.cache_id) {
+          var cache = {
+            total_duration: total_duration,
+            total_distance: total_distance
+          }
+
+          _cached[options.cache_id] = cache;
+          console.log('Cached at ' + options.cache_id);
+          console.log(_cached[options.cache_id]);
+        }
 
         if (done != undefined) {
           done();
@@ -261,10 +280,17 @@ var gmaps = (function() {
     $(_interactions).empty();
   }  
 
+  var cached = function(x) {
+    console.log('querying cache: ' + x);
+    console.log(_cached[x])
+    return _cached[x];
+  }
+
   return {
     initialize: initialize,
     clear_route: clear_route,
     
+    cached: cached,
     clear_all_markers: clear_all_markers,
     clear_all_routes: clear_all_routes,
     clear_marker: clear_marker,
@@ -275,7 +301,7 @@ var gmaps = (function() {
     get_canvas_height: get_canvas_height,
     place_marker: place_marker,
     route: route,
-    set_bounds: set_bounds
+    set_bounds: set_bounds,
   }
 })()
 

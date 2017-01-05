@@ -93,6 +93,7 @@ var event_find_ride = (function() {
     })
   }
 
+
   var render = function(data) {
     console.log(data);
     var sr = $('#find-ride-search-result');
@@ -127,6 +128,21 @@ var event_find_ride = (function() {
       var waypoints = JSON.parse($(this).attr('trip-waypoints'));
       var additional_waypoint = $('#find-ride-address').val().trim();
 
+      var default_route;
+      var additional_route;
+
+      var check_delta = function() {
+        console.log('delta check');
+        console.log(default_route);
+        console.log(additional_route);
+        if (default_route != undefined && additional_route != undefined) {
+          var extra_distance = additional_route.total_distance - default_route.total_distance;
+          var extra_duration = additional_route.total_duration - default_route.total_duration;
+
+          console.log('+' + extra_distance + 'm, +' + extra_duration + 's');
+        }
+      }
+
       waypoints.push(additional_waypoint);
 
       gmaps.clear_all_markers();
@@ -145,12 +161,27 @@ var event_find_ride = (function() {
                       'route-to-home', 
                       'green',
                       undefined,
-                      function() { gmaps.set_bounds(); });
+                      function() { 
+                        gmaps.set_bounds(); 
+                        default_route = gmaps.cached(trip_id);
+                        check_delta();
+                      },
+                      {
+                        cache_id: trip_id
+                      });
           gmaps.clear_route('route-additional-to-home');
           gmaps.route(trip_event_address,
                       trip_start_address,
                       'route-additional-to-home',
-                      'orange', undefined, undefined, { waypoints: waypoints });
+                      'orange', undefined,
+                      function() {
+                        additional_route = gmaps.cached(trip_id + '-x');
+                        check_delta();
+                      }, 
+                      { 
+                        waypoints: waypoints,
+                        cache_id: trip_id + '-x'
+                      });
           break;
         case 'to_event':
           //gmaps.clear_marker('ride-offered-start');
@@ -162,12 +193,27 @@ var event_find_ride = (function() {
                       'route-to-event', 
                       'red',
                       undefined,
-                      function() { gmaps.set_bounds(); });
+                      function() { 
+                        gmaps.set_bounds(); 
+                        default_route = gmaps.cached(trip_id);
+                        check_delta();
+                      },
+                      {
+                        cache_id: trip_id
+                      });
           gmaps.clear_route('route-additional-to-event');
           gmaps.route(trip_start_address,
                       trip_event_address,
                       'route-additional-to-event',
-                      'yellow', undefined, undefined, { waypoints: waypoints });
+                      'yellow', undefined,
+                      function() {
+                        additional_route = gmaps.cached(trip_id + '-x');
+                        check_delta();
+                      },
+                      { 
+                        waypoints: waypoints ,
+                        cache_id: trip_id + '-x'
+                      });
           break;
       }
       
