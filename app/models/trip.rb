@@ -87,6 +87,7 @@ class Trip < ApplicationRecord
 
     t = Trip.joins(:steps)
             .joins(:event)
+            .left_outer_joins(:passengers)
             .where(mark_for_deletion: false)
             .where(event_id: event_id)
             .where(trip_type: Trip.trip_types[params[:trip_type]])
@@ -96,6 +97,7 @@ class Trip < ApplicationRecord
                      steps.lat_e6 AS step_lat_e6,
                      steps.lng_e6 AS step_lng_e6,
                      steps.time_estimation AS step_estimation,
+                     passengers.address AS waypoint,
                      trips.id AS trip_id,
                      trips.user_id AS trip_user_id,
                      trips.address AS trip_start_address,
@@ -108,15 +110,12 @@ class Trip < ApplicationRecord
         trip_start_address: r[:trip_start_address],
         trip_start_time: r[:trip_start_time],
         event_address: r[:event_address],
-        steps: Array.new
+        waypoints: Array.new
       }
 
-      result[r[:trip_id]][:steps].push({
-        step_id: r[:step_id],
-        lat_e6: r[:step_lat_e6],
-        lng_e6: r[:step_lng_e6],
-        estimation: r[:step_estimation]
-      })
+      if r[:waypoint]
+        result[r[:trip_id]][:waypoints].push r[:waypoint]
+      end
     end
 
     ap result

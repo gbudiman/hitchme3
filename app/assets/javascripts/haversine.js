@@ -40,6 +40,7 @@ var haversine = (function() {
 
       console.log(distance);
       if (distance < min_distance) {
+        console.log('marked closest: ' + distance + ' [' + i + ']');
         min_distance = distance;
         min_point = i;
       }

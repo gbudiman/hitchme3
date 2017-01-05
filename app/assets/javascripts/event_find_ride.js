@@ -43,6 +43,25 @@ var event_find_ride = (function() {
 
     $('#find-ride-start-time').datetimepicker();
     $('#find-ride-switch').on('change', function() {
+      switch(current_travel_direction()) {
+        case 'to_event':
+          gmaps.clear_marker('ride-request-to-home');
+          gmaps.clear_route('route-to-home');
+          gmaps.clear_route('route-additional-to-home');
+
+          gmaps.place_marker($('#find-ride-address').val(), 'ride-request-to-event', 'yellow')
+            .then(function() { gmaps.set_bounds(); });
+          break;
+        case 'to_home':
+          gmaps.clear_marker('ride-request-to-event');
+          gmaps.clear_route('route-to-event');
+          gmaps.clear_route('route-additional-to-event');
+
+          gmaps.place_marker($('#find-ride-address').val(), 'ride-request-to-home', 'orange')
+            .then(function() { gmaps.set_bounds(); });
+          break;
+      }
+
       set_input_time(false);
       //cycle_default_time();
       run_validations();
@@ -93,6 +112,7 @@ var event_find_ride = (function() {
                   .attr('trip-organizer', trip_data.trip_orgainzer)
                   .attr('trip-start-address', trip_data.trip_start_address)
                   .attr('trip-event-address', trip_data.event_address)
+                  .attr('trip-waypoints', JSON.stringify(trip_data.waypoints))
                   .append($('<div/>')
                             .append(trip_data.trip_start_address))
                   .append($('<div/>')
@@ -104,41 +124,50 @@ var event_find_ride = (function() {
       var trip_type = $(this).attr('trip-type');
       var trip_start_address = $(this).attr('trip-start-address');
       var trip_event_address = $(this).attr('trip-event-address');
+      var waypoints = JSON.parse($(this).attr('trip-waypoints'));
+      var additional_waypoint = $('#find-ride-address').val().trim();
 
-      console.log(trip_type);
-      console.log(trip_start_address);
+      waypoints.push(additional_waypoint);
 
+      gmaps.clear_all_markers();
+      gmaps.clear_all_routes();
       gmaps.clear_marker('event-created');
       gmaps.place_marker(trip_event_address, 'event-created', 'blue');
 
       switch (trip_type) {
         case 'to_home': 
-          gmaps.clear_marker('ride-offered-end');
+          //gmaps.clear_marker('ride-offered-end');
           gmaps.place_marker(trip_start_address, 'ride-offered-end', 'green')
-            .then(function() { 
-              visualize_shortest_to(_latlng, trip_id); 
-            });
-          gmaps.clear_route('route-to-event');
+          gmaps.place_marker(additional_waypoint, 'ride-request-to-home', 'orange')
+          //gmaps.clear_route('route-to-home');
           gmaps.route(trip_event_address, 
                       trip_start_address, 
                       'route-to-home', 
                       'green',
                       undefined,
                       function() { gmaps.set_bounds(); });
+          gmaps.clear_route('route-additional-to-home');
+          gmaps.route(trip_event_address,
+                      trip_start_address,
+                      'route-additional-to-home',
+                      'orange', undefined, undefined, { waypoints: waypoints });
           break;
         case 'to_event':
-          gmaps.clear_marker('ride-offered-start');
+          //gmaps.clear_marker('ride-offered-start');
           gmaps.place_marker(trip_start_address, 'ride-offered-start', 'red')
-            .then(function() { 
-              visualize_shortest_to(_latlng, trip_id); 
-            });
-          gmaps.clear_route('route-to-home');
+          gmaps.place_marker(additional_waypoint, 'ride-request-to-event', 'yellow')
+          //gmaps.clear_route('route-to-home');
           gmaps.route(trip_start_address, 
                       trip_event_address, 
                       'route-to-event', 
                       'red',
                       undefined,
                       function() { gmaps.set_bounds(); });
+          gmaps.clear_route('route-additional-to-event');
+          gmaps.route(trip_start_address,
+                      trip_event_address,
+                      'route-additional-to-event',
+                      'yellow', undefined, undefined, { waypoints: waypoints });
           break;
       }
       
@@ -147,8 +176,6 @@ var event_find_ride = (function() {
   }
 
   var visualize_shortest_to = function(latlng, trip_id) {
-    console.log('visualizing... ' + latlng.lat() + ',' + latlng.lng());
-
     if (_trip_cache[trip_id] == undefined) {
       $.ajax({
         method: 'GET',
@@ -171,36 +198,35 @@ var event_find_ride = (function() {
   var render_visualization = function(latlng, trip_id) {
     var cached = _trip_cache[trip_id];
 
-    var find_neighbors = function(i) {
-      points = new Array();
 
-      if (i != 0 && cached[i - 1] != undefined) {
-        points.push(cached[i - 1]);
-      }
 
-      points.push(cached[i]);
+    // var find_neighbors = function(i) {
+    //   points = new Array();
 
-      if (cached[i + 1] != undefined) {
-        points.push(cached[i + 1]);
-      }
-    }
+    //   if (i != 0 && cached[i - 1] != undefined) {
+    //     points.push(cached[i - 1]);
+    //   }
 
-    console.log('cached --- ');
-    console.log(cached);
-    console.log(latlng.lat() + ', ' + latlng.lng());
-    haversine
-      .get_shortest(latlng, cached)
-      .then(function(min_distance, index) {
-        console.log(min_distance);
-        console.log(index);
-        console.log('--');
-        $.each(find_neighbors(index), function(i, x) {
-          console.log(x);
-        });
-      });
-    // $.each(_trip_cache[trip_id], function(i, x) {
-    //   console.log(x);
-    // })
+    //   points.push(cached[i]);
+
+    //   if (cached[i + 1] != undefined) {
+    //     points.push(cached[i + 1]);
+    //   }
+    // }
+
+    // haversine
+    //   .get_shortest(latlng, cached)
+    //   .then(function(min_distance, index) {
+    //     console.log(min_distance);
+    //     console.log(index);
+    //     console.log('--');
+    //     $.each(find_neighbors(index), function(i, x) {
+    //       console.log(x);
+    //     });
+    //   });
+    // // $.each(_trip_cache[trip_id], function(i, x) {
+    // //   console.log(x);
+    // // })
   }
 
   var create_latlng_boundary = function(level) {
@@ -286,6 +312,8 @@ var event_find_ride = (function() {
       case 'init':
         $('#find-ride-address').val('');
         $('#find-ride-start-time').val('');
+        gmaps.clear_all_markers();
+        gmaps.clear_all_routes();
         reset_private_data();
         run_validations();
         break;

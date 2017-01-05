@@ -53,6 +53,13 @@ var gmaps = (function() {
     _markers = new Object();
   }
 
+  var clear_all_routes = function() {
+    console.log('gmaps.js: All routes cleared!');
+    $.each(_polylines, function(i, x) {
+      x.setMap(null);
+    })
+  }
+
   var clear_marker = function(x) {
     if (_markers[x] != undefined) {
       _markers[x].setMap(null);
@@ -68,6 +75,7 @@ var gmaps = (function() {
   }
 
   var encode_route = function(name) {
+    console.log(_steps);
     if (_steps[name] != undefined) {
       var latlngs = new Array();
       var durations = new Array();
@@ -105,22 +113,42 @@ var gmaps = (function() {
     _map.fitBounds(bounds);
   }
 
-  var route = function(a, b, name, color, start, done) {
+
+  var route = function(a, b, name, color, start, done, _options) {
     clear_route(name);
+    var options = _options == undefined ? new Object() : _options;
     var paths = new Array();
     var steps = new Array();
     var direction_service = new google.maps.DirectionsService;
+    var waypoints = new Array();
 
     if (start != undefined) { start(); }
+
+    if (options.waypoints != undefined) {
+      $.each(options.waypoints, function(i, x) {
+        waypoints.push({location: x});
+      })
+    } 
+
+    if (name.match(/route-additional/)) {
+
+    } else {
+      clear_route('route-additional-to-event');
+      clear_route('route-additional-to-home');
+      clear_marker('ride-request-to-event');
+      clear_marker('ride-reqeust-to-home');
+    }
 
     direction_service.route({
       origin: a,
       destination: b,
       optimizeWaypoints: true,
+      waypoints: waypoints,
       travelMode: 'DRIVING'
     }, function(response, status) {
       if (status === 'OK') {
         console.log(response);
+        console.log('Saving to steps: ' + name);
         $.each(response.routes[0].legs, function(i, leg) {
           $.each(leg.steps, function(j, step) {
             if (steps.length == 0) { 
@@ -219,7 +247,6 @@ var gmaps = (function() {
 
               _markers[id] = marker;
               console.log('gmaps.js: Marker placed: ' + id);
-              console.log('Resolved: ' + latlng.lat() + ',' + latlng.lng());
               if (done != undefined) { done(); }
               resolve(latlng);
             }
@@ -239,6 +266,7 @@ var gmaps = (function() {
     clear_route: clear_route,
     
     clear_all_markers: clear_all_markers,
+    clear_all_routes: clear_all_routes,
     clear_marker: clear_marker,
     destroy: destroy,
     encode_route: encode_route,
