@@ -22,4 +22,9 @@ class TripController < ApplicationController
       status: undestroyed ? 'OK' : 'error'
     }
   end
+
+  def search
+    ap params
+    Trip.search_box params: params, event_id: params[:event_id].to_i
+  end
 end

@@ -1,9 +1,13 @@
 var event_find_ride = (function() {
   var _state = 'init';
+  var _event_id;
   var _time_to_event;
   var _time_to_home;
   var _supplied_time_to_event;
   var _supplied_time_to_home;
+  var _latlng;
+
+  var _boundary_step = 250000;
 
   var invalidate = function() {
     $('#find-ride-search').prop('disabled', true)
@@ -14,10 +18,13 @@ var event_find_ride = (function() {
     autocomplete.addListener('place_changed', function() {
       run_validations();
 
-
       gmaps.place_marker($('#find-ride-address').val(),
                          'ride-request-to-event',
-                         'yellow');
+                         'yellow')
+        .then(function(latlng) {
+          _latlng = latlng;
+          gmaps.set_bounds();
+        });
     })
 
     $('#find-ride-start-time').datetimepicker();
@@ -27,9 +34,45 @@ var event_find_ride = (function() {
       run_validations();
     })
 
+    $('#find-ride-address').on('focus', function() {
+      $(this).select();
+    })
+
     $('#find-ride-start-time')
       .on('keyup', set_input_time)
       .on('dp.change', set_input_time);
+
+    $('#find-ride-search').on('click', function() {
+      $.ajax({
+        method: 'GET',
+        url: '/trip/search',
+        data: {
+          event_id: _event_id,
+          bounds: create_latlng_boundary(1),
+          trip_type: current_travel_direction
+        }
+      }).done(function(res) {
+
+      })
+    })
+  }
+
+  var create_latlng_boundary = function(level) {
+    var d = {
+      lat_lo: parseInt(_latlng.lat() * 1000000),
+      lat_hi: parseInt(_latlng.lat() * 1000000),
+      lng_lo: parseInt(_latlng.lng() * 1000000),
+      lng_hi: parseInt(_latlng.lng() * 1000000)
+    }
+
+    var mod = level * _boundary_step;
+
+    d.lat_lo -= mod;
+    d.lat_hi += mod; 
+    d.lng_lo -= mod;
+    d.lng_hi += mod;
+
+    return d;
   }
 
   var set_input_time = function(_do_update) {
@@ -81,6 +124,10 @@ var event_find_ride = (function() {
     run_validations();
   }
 
+  var set_event_id = function(x) {
+    _event_id = x;
+  }
+
   var run_validations = function() {
     var error = form_validator.not_empty($('#find-ride-address'))
               + form_validator.not_empty($('#find-ride-start-time'));
@@ -113,19 +160,11 @@ var event_find_ride = (function() {
     initialize();
   }
 
-  var supplied_data = function() {
-    return {
-      to_event: _supplied_time_to_event,
-      to_home: _supplied_time_to_home,
-      default_to_event: _time_to_event,
-      default_to_home: _time_to_home
-    }
-  }
-
   return {
     attach: attach,
     transition: transition,
     set_date: set_date,
-    supplied_data: supplied_data
+    set_event_id: set_event_id,
+    create_latlng_boundary: create_latlng_boundary
   }
 })();

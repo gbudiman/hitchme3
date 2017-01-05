@@ -64,6 +64,7 @@ var event_finder = (function() {
         event_setup_ride.set_date('departure', event_start_time);
         event_find_ride.transition('init');
         event_find_ride.set_date(event_start_time, event_end_time);
+        event_find_ride.set_event_id(item);
 
         if (event_end_time > 0) {
           event_setup_ride.set_date('return', event_end_time);

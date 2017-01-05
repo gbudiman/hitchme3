@@ -80,4 +80,43 @@ class Trip < ApplicationRecord
                         events.address as event_address,
                         events.time_start as event_start')
   end
+
+  def self.search_box event_id:, params:
+    bounds = params[:bounds]
+    result = Hash.new
+
+    t = Trip.joins(:steps)
+            .joins(:event)
+            .where(mark_for_deletion: false)
+            .where(event_id: event_id)
+            .where(trip_type: Trip.trip_types[params[:trip_type]])
+            .where('steps.lat_e6 BETWEEN :lo AND :hi', lo: bounds[:lat_lo].to_i, hi: bounds[:lat_hi].to_i)
+            .where('steps.lng_e6 BETWEEN :lo AND :hi', lo: bounds[:lng_lo].to_i, hi: bounds[:lng_hi].to_i)
+            .select('steps.id AS step_id,
+                     steps.lat_e6 AS step_lat_e6,
+                     steps.lng_e6 AS step_lng_e6,
+                     steps.time_estimation AS step_estimation,
+                     trips.id AS trip_id,
+                     trips.address AS trip_start_address,
+                     trips.time_start AS trip_start_time,
+                     trips.trip_type AS trip_type,
+                     events.address AS event_address').each do |r|
+      result[r[:trip_id]] ||= {
+        trip_type: r[:trip_type],
+        trip_start_address: r[:trip_start_address],
+        trip_start_time: r[:trip_start_time],
+        event_address: r[:event_address],
+        steps: Array.new
+      }
+
+      result[r[:trip_id]][:steps].push({
+        step_id: r[:step_id],
+        lat_e6: r[:step_lat_e6],
+        lng_e6: r[:step_lng_e6],
+        estimation: r[:step_estimation]
+      })
+    end
+
+    ap result
+  end
 end

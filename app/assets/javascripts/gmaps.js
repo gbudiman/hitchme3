@@ -202,23 +202,28 @@ var gmaps = (function() {
   var place_marker = function(x, id, _hue, done) {
     var hue = _hue == undefined ? 'red' : _hue;
 
-    GMaps.geocode({
-      address: x,
-      callback: function(results, status) {
-        if (status == 'OK') {
-          var latlng = results[0].geometry.location;
+    return new Promise(
+      function (resolve, reject) {
+        GMaps.geocode({
+          address: x,
+          callback: function(results, status) {
+            if (status == 'OK') {
+              var latlng = results[0].geometry.location;
 
-          _map.setCenter(latlng.lat(), latlng.lng());
-          var marker = _map.addMarker({
-            position: latlng,
-            icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
-          })
+              _map.setCenter(latlng.lat(), latlng.lng());
+              var marker = _map.addMarker({
+                position: latlng,
+                icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
+              })
 
-          _markers[id] = marker;
-          if (done != undefined) { done(); }
-        }
+              _markers[id] = marker;
+              if (done != undefined) { done(); }
+              resolve(latlng);
+            }
+          }
+        })
       }
-    })
+    )
   }
 
   var destroy = function() {
