@@ -8,6 +8,8 @@ var gmaps = (function() {
   var _cached_routes;
   var _cached_markers;
 
+  var _waypoint_cache_key;
+
   var map = function() { return _map; }
   var get_canvas_height = function() {
     return $(window).height() - $('.navbar').outerHeight() - 20;
@@ -66,6 +68,7 @@ var gmaps = (function() {
 
   var clear_marker = function(x) {
     if (_markers[x] != undefined) {
+      console.log('Marker cleared: ' + x);
       _markers[x].setMap(null);
     }
   }
@@ -90,6 +93,7 @@ var gmaps = (function() {
         console.log('Fetching from metadata cache: ' + id);
         return _cached_routes[id].metadata;
       case 'marker':
+        return _cached_markers[id];
         break;
     }
   }
@@ -130,8 +134,15 @@ var gmaps = (function() {
       bounds.extend(x.position);
     })
 
-    console.log(_markers);
     _map.fitBounds(bounds);
+  }
+
+  var invalidate_cached_alternate_routes = function() {
+    $.each(_cached_routes, function(name, _junk) {
+      if (name.match(/\-x$/)) {
+        delete _cached_routes[name];
+      }
+    })
   }
 
   var route_with_alternate = function(trip_id, direction, addresses) {
@@ -149,6 +160,15 @@ var gmaps = (function() {
 
         var default_route;
         var pickup_route;
+
+        console.log('Checking cache key: ' + _waypoint_cache_key + ' | ' + addresses.pickup);
+        if (_waypoint_cache_key == undefined) {
+          _waypoint_cache_key = addresses.pickup;
+        } else if (_waypoint_cache_key != addresses.pickup) {
+          console.log('All alternate route cache invalidated!');
+          _waypoint_cache_key = addresses.pickup;
+          invalidate_cached_alternate_routes();
+        }
 
         var check_delta = function() {
           if (default_route != undefined && pickup_route != undefined) {
@@ -248,14 +268,14 @@ var gmaps = (function() {
       })
     } 
 
-    if (name.match(/route-additional/)) {
+    // if (name.match(/route-additional/)) {
 
-    } else {
-      clear_route('route-additional-to-event');
-      clear_route('route-additional-to-home');
-      clear_marker('ride-request-to-event');
-      clear_marker('ride-reqeust-to-home');
-    }
+    // } else {
+    //   clear_route('route-additional-to-event');
+    //   clear_route('route-additional-to-home');
+    //   clear_marker('ride-request-to-event');
+    //   clear_marker('ride-reqeust-to-home');
+    // }
 
     if (options.cache_id != undefined && _cached_routes[options.cache_id] != undefined) {
       console.log('Cache hit on route: ' + options.cache_id);
@@ -380,28 +400,49 @@ var gmaps = (function() {
 
   var place_marker = function(x, id, _hue, done) {
     var hue = _hue == undefined ? 'red' : _hue;
+    var op = function(latlng) {
+      _map.setCenter(latlng.lat(), latlng.lng());
+      console.log('Marker placed at: ' + latlng.lat() + ',' + latlng.lng() + ' for ' + x + ' [' + id + ']');
+      return _map.addMarker({
+        position: latlng,
+        icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
+      })
+    }
 
     return new Promise(
       function (resolve, reject) {
-        GMaps.geocode({
-          address: x,
-          callback: function(results, status) {
-            if (status == 'OK') {
-              var latlng = results[0].geometry.location;
+        if (_cached_markers[x] != undefined) {
+          var latlng = _cached_markers[x];
+          console.log('gmaps.js: Marker retrieved from cache: ' + x + ' [' + id + ']');
+          var marker = op(latlng);
+          _markers[id] = marker;
+          if (done != undefined) { done(); }
+          resolve(latlng);
+        } else {
 
-              _map.setCenter(latlng.lat(), latlng.lng());
-              var marker = _map.addMarker({
-                position: latlng,
-                icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
-              })
+          console.log('gmaps.js: Marker cache miss for address ' + x + '. Querying gmaps...');
+          GMaps.geocode({
+            address: x,
+            callback: function(results, status) {
+              if (status == 'OK') {
+                var latlng = results[0].geometry.location;
 
-              _markers[id] = marker;
-              console.log('gmaps.js: Marker placed: ' + id);
-              if (done != undefined) { done(); }
-              resolve(latlng);
+                // _map.setCenter(latlng.lat(), latlng.lng());
+                // var marker = _map.addMarker({
+                //   position: latlng,
+                //   icon: '//maps.google.com/mapfiles/ms/icons/' + hue + '-dot.png'
+                // })
+                var marker = op(latlng);
+
+                _markers[id] = marker;
+                console.log('gmaps.js: Marker placed and cached: ' + x + ' [' + id + ']');
+                _cached_markers[x] = latlng;
+                if (done != undefined) { done(); }
+                resolve(latlng);
+              }
             }
-          }
-        })
+          })
+        }
       }
     )
   }
