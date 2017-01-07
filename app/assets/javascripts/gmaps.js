@@ -5,7 +5,8 @@ var gmaps = (function() {
   var _interactions = '#map-interactions'
   var _polylines;
   var _steps;
-  var _cached;
+  var _cached_routes;
+  var _cached_markers;
 
   var map = function() { return _map; }
   var get_canvas_height = function() {
@@ -22,7 +23,8 @@ var gmaps = (function() {
     _markers = new Object();
     _polylines = new Object();
     _steps = new Object();
-    _cached = new Object();
+    _cached_routes = new Object();
+    _cached_markers = new Object();
 
     GMaps.geocode({
       address: 'Los Angeles, CA',
@@ -76,8 +78,23 @@ var gmaps = (function() {
     }
   }
 
+  var check_cache = function(id, property) {
+    switch(property) {
+      case 'steps':
+        console.log('Fetching from steps cache: ' + id);
+        return _cached_routes[id].steps;
+      case 'polylines':
+        console.log('Fetching from polylines cache: ' + id);
+        return _cached_routes[id].polylines;
+      case 'metadata':
+        console.log('Fetching from metadata cache: ' + id);
+        return _cached_routes[id].metadata;
+      case 'marker':
+        break;
+    }
+  }
+
   var encode_route = function(name) {
-    console.log(_steps);
     if (_steps[name] != undefined) {
       var latlngs = new Array();
       var durations = new Array();
@@ -96,6 +113,8 @@ var gmaps = (function() {
         polysteps: polyline.encode(latlngs),
         durations: durations
       }
+    } else {
+      console.log('gmaps.encode_route(\"' + name + '\") -> null result');
     }
   }
 
@@ -181,7 +200,6 @@ var gmaps = (function() {
             break;
         }
 
-        console.log('route_with_alternate to ' + direction);
         clear_all_markers();
         clear_all_routes();
         place_marker(p.start, p.start_marker_name, p.start_marker_color);
@@ -191,14 +209,14 @@ var gmaps = (function() {
         route(p.start, p.end, p.route_default_name, p.route_default_color,
               undefined,
               function() {
-                default_route = cached(trip_id);
+                default_route = check_cache(trip_id, 'metadata');
                 check_delta();
               },
               { cache_id: trip_id });
         route(p.start, p.end, p.route_additional_name, p.route_additional_color,
               undefined,
               function() {
-                pickup_route = cached(trip_id + '-x');
+                pickup_route = check_cache(trip_id + '-x', 'metadata');
                 check_delta()
               },
               { cache_id: trip_id + '-x',
@@ -239,6 +257,20 @@ var gmaps = (function() {
       clear_marker('ride-reqeust-to-home');
     }
 
+    if (options.cache_id != undefined && _cached_routes[options.cache_id] != undefined) {
+      console.log('Cache hit on route: ' + options.cache_id);
+      _polylines[name] = check_cache(options.cache_id, 'polylines');
+      _steps[name] = check_cache(options.cache_id, 'steps');
+
+      _polylines[name].setMap(_map.map);
+
+      if (done != undefined) { done(); }
+
+      return;
+    }
+
+
+    console.log('No route cached for: ' + options.cache_id + ' - Querying gmaps...');
     direction_service.route({
       origin: a,
       destination: b,
@@ -280,14 +312,18 @@ var gmaps = (function() {
         _steps[name] = steps;
 
         if (options.cache_id) {
-          var cache = {
+          var metadata = {
             total_duration: total_duration,
             total_distance: total_distance
           }
 
-          _cached[options.cache_id] = cache;
-          console.log('Cached at ' + options.cache_id);
-          console.log(_cached[options.cache_id]);
+          _cached_routes[options.cache_id] = {
+            metadata: metadata,
+            polylines: _polylines[name],
+            steps: _steps[name]
+          }
+          console.log('Route saved to cache: ' + options.cache_id);
+
         }
 
         if (done != undefined) {
@@ -375,17 +411,10 @@ var gmaps = (function() {
     $(_interactions).empty();
   }  
 
-  var cached = function(x) {
-    console.log('querying cache: ' + x);
-    console.log(_cached[x])
-    return _cached[x];
-  }
-
   return {
     initialize: initialize,
     clear_route: clear_route,
-    
-    cached: cached,
+
     clear_all_markers: clear_all_markers,
     clear_all_routes: clear_all_routes,
     clear_marker: clear_marker,
