@@ -115,6 +115,101 @@ var gmaps = (function() {
     _map.fitBounds(bounds);
   }
 
+  var route_with_alternate = function(trip_id, direction, addresses) {
+    return new Promise(
+      function(resolve, reject) {
+        var p;
+        /*
+          addresses = {
+            event:,
+            local:,
+            pickup:,
+            waypoints:
+          }
+        */
+
+        var default_route;
+        var pickup_route;
+
+        var check_delta = function() {
+          if (default_route != undefined && pickup_route != undefined) {
+            var x_dist = pickup_route.total_distance - default_route.total_distance;
+            var x_time = pickup_route.total_duration - default_route.total_duration;
+
+            set_bounds();
+            resolve({
+              extra_distance: x_dist,
+              extra_duration: x_time
+            })
+          } 
+        }
+
+        switch(direction) {
+          case 'to_event':
+            p = {
+              start_marker_name: 'ride-offered-start',
+              start_marker_color: 'red',
+              end_marker_name: 'event-created',
+              end_marker_color: 'blue',
+              pickup_marker_name: 'ride-request-to-event',
+              pickup_marker_color: 'yellow',
+              route_default_name: 'route-to-event',
+              route_default_color: 'red',
+              route_additional_name: 'route-additional-to-event',
+              route_additional_color: 'yellow',
+              start: addresses.local,
+              end: addresses.event
+            }
+
+            break;
+          case 'to_home':
+            p = {
+              start_marker_name: 'event-created',
+              start_marker_color: 'blue',
+              end_marker_name: 'ride-offered-end',
+              end_marker_color: 'green',
+              pickup_marker_name: 'ride-request-to-home',
+              pickup_marker_color: 'orange',
+              route_default_name: 'route-to-home',
+              route_default_color: 'green',
+              route_additional_name: 'route-additional-to-home',
+              route_additional_color: 'orange',
+              start: addresses.event,
+              end: addresses.local
+            }
+
+            break;
+        }
+
+        console.log('route_with_alternate to ' + direction);
+        clear_all_markers();
+        clear_all_routes();
+        place_marker(p.start, p.start_marker_name, p.start_marker_color);
+        place_marker(p.end, p.end_marker_name, p.end_marker_color);
+        place_marker(addresses.pickup, p.pickup_marker_name, p.pickup_marker_color);
+
+        route(p.start, p.end, p.route_default_name, p.route_default_color,
+              undefined,
+              function() {
+                default_route = cached(trip_id);
+                check_delta();
+              },
+              { cache_id: trip_id });
+        route(p.start, p.end, p.route_additional_name, p.route_additional_color,
+              undefined,
+              function() {
+                pickup_route = cached(trip_id + '-x');
+                check_delta()
+              },
+              { cache_id: trip_id + '-x',
+                waypoints: addresses.waypoints });
+      }
+    )
+
+
+    
+  }
+
 
   var route = function(a, b, name, color, start, done, _options) {
     clear_route(name);
@@ -301,6 +396,7 @@ var gmaps = (function() {
     get_canvas_height: get_canvas_height,
     place_marker: place_marker,
     route: route,
+    route_with_alternate: route_with_alternate,
     set_bounds: set_bounds,
   }
 })()
