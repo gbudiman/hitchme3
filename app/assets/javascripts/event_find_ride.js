@@ -14,11 +14,29 @@ var event_find_ride = (function() {
     $('#find-ride-search').prop('disabled', true)
   }
 
+  var set_search_button = function(state) {
+    var o = $('#find-ride-search');
+    switch(state) {
+      case 'default':
+        o.text('Search').show().prop('disabled', false);
+        break;
+      case 'search_running':
+        o.text('Finding rides...').show().prop('disabled', true); 
+        break;
+      case 'search_completed':
+        o.text('Search').hide().prop('disabled', false); 
+        break;
+    }
+  }
+
   var attach = function() {
     var autocomplete = new google.maps.places.Autocomplete(document.getElementById('find-ride-address'));
     autocomplete.addListener('place_changed', function() {
       var marker_id;
       var marker_color;
+
+      set_search_button('default');
+      render(null);
       switch(current_travel_direction()) {
         case 'to_event':
           marker_color = 'yellow';
@@ -43,6 +61,8 @@ var event_find_ride = (function() {
 
     $('#find-ride-start-time').datetimepicker();
     $('#find-ride-switch').on('change', function() {
+      set_search_button('default');
+
       switch(current_travel_direction()) {
         case 'to_event':
           gmaps.clear_marker('ride-request-to-home');
@@ -77,6 +97,8 @@ var event_find_ride = (function() {
       .on('dp.change', set_input_time);
 
     $('#find-ride-search').on('click', function() {
+      set_search_button('search_running');
+
       $.ajax({
         method: 'GET',
         url: '/trip/search',
@@ -88,6 +110,8 @@ var event_find_ride = (function() {
       }).done(function(res) {
         if (res.status == 'OK') {
           render(res.results);
+
+          set_search_button('search_completed');
         }
       })
     })
@@ -101,8 +125,15 @@ var event_find_ride = (function() {
     sr.empty();
 
     _trip_cache = new Object();
+    gmaps.clear_all_routes();
+    gmaps.clear_marker('ride-offered-start');
+    gmaps.clear_marker('ride-offered-end');
 
     if (data == null) { return; }
+
+    sr.append($('<a/>')
+                .addClass('list-group-item')
+                .append('Search Results'));
 
     $.each(data, function(trip_id, trip_data) {
       sr.append($('<a/>')
@@ -120,8 +151,7 @@ var event_find_ride = (function() {
                             .append(moment(trip_data.trip_start_time).format('ddd M/D/Y h:mm A'))));
     })
 
-    $('a.list-search-entry').on('click', function(e) {
-      e.preventDefault();
+    $('a.list-search-entry').on('click', function() {
       var trip_id = parseInt($(this).attr('trip-id'));
       var trip_type = $(this).attr('trip-type');
       var trip_start_address = $(this).attr('trip-start-address');
@@ -138,96 +168,14 @@ var event_find_ride = (function() {
         waypoints: waypoints,
       }
       
-
-      // var check_delta = function() {
-      //   console.log('delta check');
-      //   console.log(default_route);
-      //   console.log(additional_route);
-      //   if (default_route != undefined && additional_route != undefined) {
-      //     var extra_distance = additional_route.total_distance - default_route.total_distance;
-      //     var extra_duration = additional_route.total_duration - default_route.total_duration;
-
-      //     console.log('+' + extra_distance + 'm, +' + extra_duration + 's');
-      //   }
-      // }
+      $('a.list-search-entry').removeClass('active');
+      $(this).addClass('active');
 
       gmaps.route_with_alternate(trip_id, trip_type, addresses)
         .then(function(res) {
           console.log(res);
         });
 
-      // gmaps.clear_all_markers();
-      // gmaps.clear_all_routes();
-      // gmaps.clear_marker('event-created');
-      // gmaps.place_marker(trip_event_address, 'event-created', 'blue');
-
-      // switch (trip_type) {
-      //   case 'to_home': 
-      //     //gmaps.clear_marker('ride-offered-end');
-      //     gmaps.place_marker(trip_start_address, 'ride-offered-end', 'green')
-      //     gmaps.place_marker(additional_waypoint, 'ride-request-to-home', 'orange')
-      //     //gmaps.clear_route('route-to-home');
-      //     gmaps.route(trip_event_address, 
-      //                 trip_start_address, 
-      //                 'route-to-home', 
-      //                 'green',
-      //                 undefined,
-      //                 function() { 
-      //                   gmaps.set_bounds(); 
-      //                   default_route = gmaps.cached(trip_id);
-      //                   check_delta();
-      //                 },
-      //                 {
-      //                   cache_id: trip_id
-      //                 });
-      //     gmaps.clear_route('route-additional-to-home');
-      //     gmaps.route(trip_event_address,
-      //                 trip_start_address,
-      //                 'route-additional-to-home',
-      //                 'orange', undefined,
-      //                 function() {
-      //                   additional_route = gmaps.cached(trip_id + '-x');
-      //                   check_delta();
-      //                 }, 
-      //                 { 
-      //                   waypoints: waypoints,
-      //                   cache_id: trip_id + '-x'
-      //                 });
-      //     break;
-      //   case 'to_event':
-      //     //gmaps.clear_marker('ride-offered-start');
-      //     gmaps.place_marker(trip_start_address, 'ride-offered-start', 'red')
-      //     gmaps.place_marker(additional_waypoint, 'ride-request-to-event', 'yellow')
-      //     //gmaps.clear_route('route-to-home');
-      //     gmaps.route(trip_start_address, 
-      //                 trip_event_address, 
-      //                 'route-to-event', 
-      //                 'red',
-      //                 undefined,
-      //                 function() { 
-      //                   gmaps.set_bounds(); 
-      //                   default_route = gmaps.cached(trip_id);
-      //                   check_delta();
-      //                 },
-      //                 {
-      //                   cache_id: trip_id
-      //                 });
-      //     gmaps.clear_route('route-additional-to-event');
-      //     gmaps.route(trip_start_address,
-      //                 trip_event_address,
-      //                 'route-additional-to-event',
-      //                 'yellow', undefined,
-      //                 function() {
-      //                   additional_route = gmaps.cached(trip_id + '-x');
-      //                   check_delta();
-      //                 },
-      //                 { 
-      //                   waypoints: waypoints ,
-      //                   cache_id: trip_id + '-x'
-      //                 });
-      //     break;
-      // }
-      
       return false;
     })
   }
